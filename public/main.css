@@ -4,9 +4,18 @@
   --content-width: calc(var(--pendulum-width) + var(--info-width));
   --content-height: 480px;
 
+  --main-font: 'Roboto', sans-serif;
+  --code-font: 'Roboto Mono', monospace;
+
   --bg: #f5f5f5;
   --primary: #33384a;
+  --secondary: #40518f;
+  --tertiary: #4b68d1;
 }
+
+/*
+ * Basic layout
+ */
 
 html, body {
   height: 100%;
@@ -16,6 +25,7 @@ html, body {
   justify-content: center;
   align-items: center;
   background-color: var(--bg);
+  font-family: var(--main-font);
   color: var(--primary);
 }
 
@@ -36,6 +46,7 @@ html, body {
 #info {
   width: var(--info-width);
   margin: 0;
+  padding: 8px;
   overflow: scroll;
   flex-shrink: 0;
 }
@@ -69,4 +80,31 @@ html, body {
   #info {
     width: 100%;
   }
+}
+
+/*
+ * Typography and info layout
+ */
+h1 {
+  text-align: center;
+}
+
+p {
+  line-height: 1.7em;
+}
+
+a {
+  color: var(--secondary);
+}
+
+a:hover {
+  color: var(--tertiary);
+}
+
+li {
+  list-style-type: none;
+}
+
+.project {
+  font-family: var(--code-font);
 }

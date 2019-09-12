@@ -5,3 +5,7 @@
   overflow: hidden;
   position: relative;
 }
+
+.app:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
