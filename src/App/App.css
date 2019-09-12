@@ -4,8 +4,14 @@
   margin: 0;
   overflow: hidden;
   position: relative;
+
+  transition: background-color 0.2s;
 }
 
 .app:hover {
   background-color: rgba(0, 0, 0, 0.03);
+}
+
+.app:hover .app-controls {
+  opacity: 1;
 }

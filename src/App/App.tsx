@@ -10,7 +10,7 @@ class App extends React.Component<AppProps> {
     return (
       <div className="app">
         <Field />
-        <Controls />
+        <Controls className="app-controls" />
       </div>
     )
   }
