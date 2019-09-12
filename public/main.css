@@ -2,7 +2,7 @@
   --pendulum-width: 300px;
   --info-width: 468px;
   --content-width: calc(var(--pendulum-width) + var(--info-width));
-  --content-height: 480px;
+  --content-height: 90%;
 
   --main-font: 'Roboto', sans-serif;
   --code-font: 'Roboto Mono', monospace;
@@ -38,7 +38,7 @@ html, body {
 
 #pendulum-root {
   width: var(--pendulum-width);
-  height: var(--content-height);
+  height: 100%;
   margin: 0;
   flex-shrink: 0;
 }
@@ -47,7 +47,7 @@ html, body {
   width: var(--info-width);
   margin: 0;
   padding: 8px;
-  overflow: scroll;
+  overflow-y: scroll;
   flex-shrink: 0;
 }
 
@@ -56,29 +56,22 @@ html, body {
  */
 @media (max-width: 800px) {
   #content {
-    --content-width: var(--info-width);
+    --content-width: 100%;
+    --content-height: 100%;
     flex-direction: column;
     align-items: center;
-    overflow: scroll;
+    overflow-y: scroll;
   }
 }
 
-/*
- * Mobile and tiny sizes
- */
 @media (max-width: 468px) {
   #content {
     --content-width: 100%;
-    height: 100%;
-  }
-
-  #pendulum-root {
-    width: 100%;
-    height: 100%;
+    padding: 10%;
   }
 
   #info {
-    width: 100%;
+    --info-width: 100%;
   }
 }
 
