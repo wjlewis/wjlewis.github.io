@@ -7,9 +7,9 @@ export interface FieldProps {}
 class Field extends React.Component<FieldProps> {
   render() {
     return (
-      <div className="field">
+      <svg className="field" width="100%" height="100%">
         <Pendulum />
-      </div>
+      </svg>
     );
   }
 }

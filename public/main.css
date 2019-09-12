@@ -3,6 +3,9 @@
   --info-width: 468px;
   --content-width: calc(var(--pendulum-width) + var(--info-width));
   --content-height: 480px;
+
+  --bg: #f5f5f5;
+  --primary: #33384a;
 }
 
 html, body {
@@ -12,6 +15,8 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: var(--bg);
+  color: var(--primary);
 }
 
 #content {

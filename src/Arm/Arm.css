@@ -1,0 +1,16 @@
+.arm {
+  fill: var(--bg);
+  stroke: var(--primary);
+  cursor: pointer;
+
+  transition: fill 0.2s;
+}
+
+.arm:hover {
+  fill: var(--primary);
+}
+
+.arm__fulcrum {
+  fill: var(--bg);
+  stroke: var(--primary);
+}

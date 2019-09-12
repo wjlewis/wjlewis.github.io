@@ -1,3 +1,9 @@
-export interface State {}
+import { PendulumState, initPendulumState } from './Pendulum';
 
-export const initState: State = {};
+export interface State {
+  pendulum: PendulumState,
+}
+
+export const initState: State = {
+  pendulum: initPendulumState,
+};
