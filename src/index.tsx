@@ -1,4 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+import store from './state/store';
+import App from './App/App';
 
-ReactDOM.render(<h1>Test</h1>, document.getElementById('pendulum-root'));
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById('pendulum-root'),
+);
