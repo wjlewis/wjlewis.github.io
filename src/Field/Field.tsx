@@ -10,6 +10,8 @@ export interface FieldProps {
   mouseDown: (pos: Vector) => void;
   mouseMove: (pos: Vector) => void;
   mouseUp: () => void;
+  start: () => void;
+  pause: () => void;
 }
 
 class Field extends React.Component<FieldProps> {
@@ -20,7 +22,9 @@ class Field extends React.Component<FieldProps> {
            width="100%"
            height="100%"
            onMouseDown={this.handleMouseDown}
-           onMouseMove={this.handleMouseMove}>
+           onMouseMove={this.handleMouseMove}
+           onMouseEnter={this.handleMouseEnter}
+           onMouseLeave={this.handleMouseLeave}>
         <Pendulum />
       </svg>
     );
@@ -52,6 +56,14 @@ class Field extends React.Component<FieldProps> {
     this.props.mouseUp();
   };
 
+  private handleMouseEnter = () => {
+    this.props.pause();
+  };
+
+  private handleMouseLeave = () => {
+    this.props.start();
+  };
+
   /*
    * We are primarily interested in the cursor's position relative to the field
    * itself. This method calculates this desired quantity based on the
@@ -68,6 +80,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   mouseDown: (pos: Vector) => dispatch(A.mouseDownField(pos)),
   mouseMove: (pos: Vector) => dispatch(A.mouseMoveField(pos)),
   mouseUp: () => dispatch(A.mouseUp()),
+  start: () => dispatch(A.start()),
+  pause: () => dispatch(A.pause()),
 });
 
 export default connect(

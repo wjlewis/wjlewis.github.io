@@ -1,9 +1,14 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
+import * as A from '../state/actions';
 import Field from '../Field/Field';
 import Controls from '../Controls/Controls';
 import './App.css';
 
-export interface AppProps {}
+export interface AppProps {
+  start: () => void;
+}
 
 class App extends React.Component<AppProps> {
   render() {
@@ -18,6 +23,17 @@ class App extends React.Component<AppProps> {
       </div>
     )
   }
+
+  componentDidMount() {
+    this.props.start();
+  }
 }
 
-export default App;
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  start: () => dispatch(A.start()),
+});
+
+export default connect(
+  null,
+  mapDispatchToProps,
+)(App);

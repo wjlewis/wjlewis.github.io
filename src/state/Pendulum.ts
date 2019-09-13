@@ -53,6 +53,8 @@ export const pendulumReducer = (state: State, action: Action): PendulumState => 
       return mouseUp(state);
     case A.MOUSE_MOVE_FIELD:
       return mouseMoveField(state, action.payload.pos);
+    case A.UPDATE_ARM_ANGLES:
+      return updateArmAngles(state, action.payload.arm1, action.payload.arm2);
     default:
       return state.pendulum;
   }
@@ -162,3 +164,9 @@ const updateIK = (state: State, pos: Vector): PendulumState => {
     return state.pendulum;
   }
 };
+
+const updateArmAngles = (state: State, angle1: number, angle2: number): PendulumState => ({
+  ...state.pendulum,
+  arm1: state.pendulum.arm1.setAngle(angle1),
+  arm2: state.pendulum.arm2.setAngle(angle2),
+});
