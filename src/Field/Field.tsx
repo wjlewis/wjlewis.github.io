@@ -16,7 +16,8 @@ class Field extends React.Component<FieldProps> {
   render() {
     return (
       <svg className="field"
-           width="100%" 
+           xmlns="http://www.w3.org/2000/svg"
+           width="100%"
            height="100%"
            onMouseDown={this.handleMouseDown}
            onMouseMove={this.handleMouseMove}>
@@ -39,6 +40,7 @@ class Field extends React.Component<FieldProps> {
   }
 
   private handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
     this.props.mouseDown(this.computeMousePos(e));
   };
 

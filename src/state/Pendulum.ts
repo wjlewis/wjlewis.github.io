@@ -21,9 +21,9 @@ export interface PendulumState {
 }
 
 export const initPendulumState: PendulumState = {
-  anchor: Vector.fromCoordinate(150, 200),
-  arm1: new Vector(70, Math.PI / 6),
-  arm2: new Vector(90, 7 * Math.PI / 8),
+  anchor: Vector.fromCoordinate(200, 225),
+  arm1: new Vector(85, -Math.PI / 5),
+  arm2: new Vector(105, -7 * Math.PI / 8),
   overArm: null,
   offset1: null,
   offset2: null,

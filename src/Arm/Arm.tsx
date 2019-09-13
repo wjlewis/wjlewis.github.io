@@ -32,7 +32,7 @@ class Arm extends React.Component<ArmProps> {
   };
 
   private constructPathString() {
-    const PADDING = 12;
+    const PADDING = 10;
     const { root, arm } = this.props;
     const lengthPadding = arm.normalize().scale(PADDING);
     const rootEdge = root.minus(lengthPadding);
