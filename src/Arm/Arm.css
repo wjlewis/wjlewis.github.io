@@ -10,6 +10,16 @@
   fill: var(--primary);
 }
 
+.arm.arm--moving {
+  fill: var(--bg);
+  cursor: unset;
+}
+
+.arm.arm--active {
+  fill: var(--primary);
+  cursor: pointer;
+}
+
 .arm__fulcrum {
   fill: var(--bg);
   stroke: var(--primary);

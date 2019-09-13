@@ -1,24 +1,38 @@
 import React from 'react';
+import classNames from 'classnames';
 import Vector from '../tools/Vector';
 import './Arm.css';
 
 export interface ArmProps {
   root: Vector;
   arm: Vector;
+  isActive: boolean;
+  isMoving: boolean;
+  onMouseDown: () => void;
 }
 
 class Arm extends React.Component<ArmProps> {
   render() {
+    const className = classNames('arm', {
+      'arm--moving': this.props.isMoving,
+      'arm--active': this.props.isActive,
+    });
     return (
       <g>
-        <path className="arm" d={this.constructPathString()} />
+        <path className={className}
+              d={this.constructPathString()}
+              onMouseDown={this.handleMouseDown} />
         {this.renderFulcrum()}
       </g>
     );
   }
 
+  private handleMouseDown = () => {
+    this.props.onMouseDown();
+  };
+
   private constructPathString() {
-    const PADDING = 8;
+    const PADDING = 12;
     const { root, arm } = this.props;
     const lengthPadding = arm.normalize().scale(PADDING);
     const rootEdge = root.minus(lengthPadding);

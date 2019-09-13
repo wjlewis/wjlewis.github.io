@@ -1,3 +1,5 @@
+import { clamp } from './utils';
+
 class Vector {
   constructor(public len: number, public angle: number) {}
 
@@ -5,6 +7,10 @@ class Vector {
     const len = Math.sqrt(x * x + y * y);
     const angle = Math.atan2(y, x);
     return new Vector(len, angle);
+  }
+
+  static isVector(x: any): boolean {
+    return Object.getPrototypeOf(x) === Vector;
   }
 
   toCoordinate(): Coordinate {
@@ -36,6 +42,18 @@ class Vector {
 
   minus(v: Vector): Vector {
     return this.plus(v.scale(-1));
+  }
+
+  angleDiff(v: Vector): number {
+    return this.angle - v.angle;
+  }
+
+  setAngle(angle: number): Vector {
+    return new Vector(this.len, angle);
+  }
+
+  clampLen(min: number, max: number): Vector {
+    return new Vector(clamp(Math.abs(min), Math.abs(max), this.len), this.angle);
   }
 }
 
