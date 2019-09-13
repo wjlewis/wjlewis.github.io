@@ -4,14 +4,13 @@
   --content-width: calc(var(--pendulum-width) + var(--info-width));
   --content-height: 90%;
 
-  --main-font: 'Roboto', sans-serif;
+  --main-font: 'Manjari', sans-serif;
   --code-font: 'Roboto Mono', monospace;
   --script-font: 'Bad Script', cursive;
 
   --bg: #f5f5f5;
   --primary: #33384a;
-  --secondary: #40518f;
-  --tertiary: #4b68d1;
+  --secondary: #6742d6;
 }
 
 /*
@@ -66,11 +65,11 @@ p {
 }
 
 a {
-  color: var(--secondary);
+  color: var(--primary);
 }
 
 a:hover {
-  color: var(--tertiary);
+  color: var(--secondary);
 }
 
 li {
