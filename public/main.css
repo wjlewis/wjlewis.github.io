@@ -72,12 +72,23 @@ a:hover {
   color: var(--secondary);
 }
 
+ul {
+  padding-left: 1em;
+}
+
 li {
   list-style-type: none;
 }
 
 .project {
   font-family: var(--code-font);
+  font-size: 14pt;
+  margin-right: 0.2em;
+}
+
+li p {
+  margin-top: 0.4em;
+  margin-bottom: 1em;
 }
 
 /*
