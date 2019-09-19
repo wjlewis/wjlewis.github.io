@@ -109,6 +109,18 @@ li {
   color: var(--primary);
 }
 
+#quine {
+  display: inline-block;
+  color: var(--base);
+  text-decoration: none;
+  margin-top: 15px;
+  font-size: 10pt;
+  font-style: italic;
+  width: 242px;
+  text-align: right;
+  line-height: 1.4em;
+}
+
 /*
  * Small sizes
  */
