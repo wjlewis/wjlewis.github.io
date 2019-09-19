@@ -4,9 +4,166 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>William Lewis</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Manjari|Roboto+Mono|Bad+Script&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,900&display=swap" />
     <link rel="stylesheet" href="./main.css" />
   </head>
   <body>
+    <div id="content">
+
+      <div id="bird">
+        <img src="./graphics/bird.png" alt="A bird, perplexed" />
+        <div id="bird-links">
+          <a href="https://github.com/wjlewis" target="_blank">github.com/wjlewis</a>
+          <a href="mailto:william.lewis112358@gmail.com">william.lewis112358@gmail.com</a>
+        </div>
+      </div>
+
+      <div id="info">
+        <h1>Welcome!</h1>
+
+        <p>
+          My name is William Lewis, and I'm a programmer living in upstate South
+          Carolina. I'm primarily interested in the design and development of
+          user interfaces, and I greatly enjoy programming in JavaScript. I'm
+          also intrigued by programming language design and semantics, the
+          foundations of mathematics and computing, visual arts, and
+          recreational math.
+        </p>
+
+        <p>
+          If you're interested, please take a look at my
+          <a href="#recent-work">recent work</a>,
+          my
+          <a href="#cv">CV</a>,
+          or my
+          <a href="https://github.com/wjlewis" target="_blank">GitHub profile</a>.
+        </p>
+
+        <section id="recent-work">
+          <h2>Recent Work</h2>
+
+          <ul>
+            <li>
+              <a href="https://github.com/wjlewis/tm">tm</a>
+              is a Turing Machine editor and simulator. It's written in
+              TypeScript using React, Redux, and Redux-Saga, and it features an
+              easy to use drag-and-drop interface, unbounded tape, some clever
+              trickery with bézier curves, and more. Try it out at
+              <a href="https://wjlew.is/tm" target="_blank">wjlew.is/tm</a>, or
+              see a video of it in action
+              <a href="https://www.youtube.com/watch?v=zLI3L2IaR9I" target="_blank">here</a>.
+            </li>
+
+            <li>
+              <a href="https://github.com/wjlewis/ramo">ramo</a>
+              is a port of
+              <a href="http://minikanren.org/" target="_blank">miniKanren</a>
+              to JavaScript. MiniKanren (and, by extension, ramo) provides a
+              number of abstractions for programming with <i>relations</i>.
+              Relations are generalizations of functions that allow for some
+              pretty eccentric and mind-bending behavior. For a small taste,
+              check out the
+              <a href="https://github.com/wjlewis/ramo#the-zebra-puzzle" target="_blank">solution</a>
+              to the famous "Zebra Puzzle" in the documentation.
+            </li>
+
+            <li>
+              <a href="https://github.com/wjlewis/blox">blox</a>
+              is an unconventional "hello world" experiment in the domain of
+              networked multiplayer systems. Clients dispatch Redux actions over
+              a WebSockets connection to a server-side store; a reducer on the
+              server generates world updates and broadcasts them to all clients.
+              The result is a nearly seamless system that works surprisingly
+              well. Try it out
+              <a href="https://wjlewis-blox.herokuapp.com/" target="_blank">here</a>.
+            </li>
+
+            <li>
+              <a href="https://github.com/wjlewis/brief-cases">brief-cases</a>
+              brings some of the best aspects of algebraic datatypes to
+              JavaScript in a tiny and easy-to-use package. It is particularly
+              useful when working with "functional" datatypes, syntax trees, or
+              any other kind of discriminated union.
+            </li>
+          </ul>
+        </section>
+
+        <section id="cv">
+          <h2>CV</h2>
+
+          <section class="cv-section">
+            <h3 class="cv-cat">Education</h3>
+            <p class="cv-item">
+              Mathematics (BS) Furman University <span class="cv-item--right">2017</span>
+            </p>
+            <p class="cv-item">
+              Physics (BS) Furman University <span class="cv-item--right">2017</span>
+            </p>
+            <p class="cv-item">
+              GPA:&thinsp; 3.98
+            </p>
+          </section>
+
+          <section class="cv-section">
+            <h3 class="cv-cat">Professional Experience</h3>
+            <p class="cv-item">
+              Software Engineer @
+              <a href="https://www.in-tech.com/en/" target="_blank">in-tech Automotive Engineering</a>
+              <span class="cv-item--right">2017&mdash;2019</span>
+            </p>
+            <ul class="cv-list">
+              <li>
+                Wrote and maintained a collection of NodeJS microservices
+              </li>
+              <li>
+                Designed and developed numerous web UIs (React, Ionic/Angular)
+              </li>
+            </ul>
+          </section>
+
+          <section class="cv-section">
+            <h3 class="cv-cat">Notable UI-Related Skills</h3>
+            <ul class="cv-list">
+              <li>
+                JavaScript, its modern variants (ES6, TypeScript, etc.),
+                and many language-related tools (Babel, WebPack, etc.)
+              </li>
+              <li>React</li>
+              <li>Redux and Redux-Saga</li>
+              <li>Jest</li>
+            </ul>
+          </section>
+
+          <section class="cv-section">
+            <h3 class="cv-cat">Other Skills</h3>
+            <ul class="cv-list">
+              <li>Working in a team setting</li>
+              <li>Learning new things quickly and thoroughly</li>
+              <li>
+                NodeJS and much of the server-side JavaScript ecosystem
+              </li>
+              <li>
+                Relational and nonrelational databases (MongoDB, CouchDB,
+                PostgreSQL)
+              </li>
+              <li>
+                DevOps and CI/CD tools (Docker, Docker-Compose, Bamboo, AWS,
+                Kubernetes)
+              </li>
+              <li>
+                General software engineering/programming tools (Unix, Git)
+              </li>
+              <li>
+                A variety of other programming languages (Scheme, Haskell, Java,
+                Python, Rust, C, and more)
+              </li>
+              <li>Mathematics and physics</li>
+            </ul>
+          </section>
+
+        </section>
+      </div>
+
+    </div>
   </body>
 </html>
