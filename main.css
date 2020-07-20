@@ -1,0 +1,61 @@
+:root {
+  --mono-font: 'Fira Code', monospace;
+  --background: #fcf8ed;
+  --gray: #777;
+  --blue: #6042f5;
+  --orange: #f58442;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: auto;
+  font-family: var(--mono-font);
+}
+
+body {
+  background-color: var(--background);
+}
+
+#content {
+  position: relative;
+  top: 50%;
+  transform: translateY(-100%);
+  font-size: 20px;
+}
+
+a {
+  color: var(--gray);
+  text-decoration: none;
+}
+
+.title {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.title a:hover {
+  background-color: var(--blue);
+  color: var(--background);
+}
+
+.italic {
+  font-style: italic;
+}
+
+.topics {
+  padding-left: 0;
+  text-align: center;
+}
+
+.topic {
+  list-style: none;
+  margin: 10px 0 10px 0;
+}
+
+.topic a:hover {
+  background-color: var(--orange);
+  color: var(--background);
+}
