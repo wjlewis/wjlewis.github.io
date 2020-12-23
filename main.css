@@ -1,9 +1,8 @@
 :root {
-  --mono-font: 'Fira Code', monospace;
-  --background: #fcf8ed;
-  --gray: #777;
-  --blue: #6042f5;
-  --orange: #f58442;
+  --prose-font: 'Fira Sans', sans-serif;
+  --code-font: 'Fira Mono', monospace;
+  --bg: #fafafa;
+  --quux: #444;
 }
 
 html,
@@ -12,50 +11,25 @@ body {
   height: 100%;
   margin: 0;
   overflow: auto;
-  font-family: var(--mono-font);
+
+  background-color: var(--bg);
+  font-family: var(--prose-font);
 }
 
-body {
-  background-color: var(--background);
-}
-
-#content {
-  position: relative;
-  top: 50%;
-  transform: translateY(-100%);
-  font-size: 20px;
-}
-
-a {
-  color: var(--gray);
+a,
+a:visited {
+  font-family: var(--code-font);
+  color: var(--quux);
   text-decoration: none;
+  padding: 0.2em 0.4em;
 }
 
-.title {
-  margin-bottom: 40px;
-  text-align: center;
+a:hover,
+a.active {
+  background-color: var(--quux);
+  color: var(--bg);
 }
 
-.title a:hover {
-  background-color: var(--blue);
-  color: var(--background);
-}
-
-.italic {
+a.active {
   font-style: italic;
-}
-
-.topics {
-  padding-left: 0;
-  text-align: center;
-}
-
-.topic {
-  list-style: none;
-  margin: 10px 0 10px 0;
-}
-
-.topic a:hover {
-  background-color: var(--orange);
-  color: var(--background);
 }

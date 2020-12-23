@@ -1,29 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>wjl</title>
-    <link rel="stylesheet" type="text/css" href="./main.css" />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap"
-    />
-  </head>
-  <body>
-    <div id="content">
-      <div class="title">
-        <a
-          href="https://en.wikipedia.org/wiki/The_Treachery_of_Images"
-          target="_blank"
-          >| <span class="italic"><- This is not a pipe.</span></a
-        >
-      </div>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="William Lewis's personal homepage." />
 
-      <ul class="topics">
-        <li class="topic"><a href="">about</a></li>
-        <li class="topic"><a href="">projects</a></li>
-        <li class="topic"><a href="">cv</a></li>
-      </ul>
-    </div>
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Mono&family=Fira+Sans&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="./main.css" />
+
+    <title>wjl</title>
+  </head>
+
+  <body>
+    <section>
+      <a href="#readme" id="readme-toggle">README</a>
+      <a href="#cv" id="cv-toggle">CV</a>
+      <a href="#about" id="about-toggle">About</a>
+    </section>
+
+    <section id="readme">
+      <h1>README</h1>
+
+      <p>This is the README</p>
+    </section>
+
+    <section id="cv">
+      <h1>CV</h1>
+
+      <p>This is my CV</p>
+    </section>
+
+    <section id="about">
+      <h1>About</h1>
+
+      <p>This is a short bio</p>
+    </section>
+
+    <script src="./main.js"></script>
   </body>
 </html>
