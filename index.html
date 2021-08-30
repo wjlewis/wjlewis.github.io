@@ -2,386 +2,118 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Hackin'</title>
-
-    <style>
-      @font-face {
-        font-family: 'Fira Code';
-        src: url(FiraCode-Medium.otf);
-      }
-
-      html,
-      body {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        overflow: hidden;
-        font-family: 'Fira Code', monospace;
-      }
-
-      body {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #2b6c74;
-      }
-
-      canvas {
-        display: block;
-      }
-
-      #container {
-        position: relative;
-      }
-
-      #hover {
-        position: absolute;
-        display: none;
-        background-color: rgba(0, 0, 0, 0.2);
-        box-sizing: border-box;
-        cursor: pointer;
-      }
-
-      #content {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-        color: #ffe7cf;
-        pointer-events: none;
-        max-width: 40%;
-      }
-
-      h1 {
-        font-size: 24pt;
-      }
-
-      p {
-        font-size: 14pt;
-      }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Welcome!</title>
+    <link rel="stylesheet" href="./common.css" />
   </head>
 
   <body>
-    <div id="container">
-      <canvas></canvas>
-      <div id="hover"></div>
+    <header>
+      <nav>
+        <a href="https://en.wikipedia.org/wiki/Sonobe" target="_blank">
+          <img id="icon" src="./assets/sonobe.svg" alt="A Sonobe module" />
+        </a>
+        <div class="nav-links">
+          <a href="#cv">CV</a>
+          <a href="#about">About</a>
+          <a href="#contact">Contact</a>
+          <a href="https://www.github.com/wjlewis" target="_blank">GitHub</a>
 
-      <div id="content">
+          <button id="theme-toggle">Dark</button>
+        </div>
+      </nav>
+    </header>
+
+    <article>
+      <section>
         <h1>Welcome!</h1>
 
+        <p>asdfasdf</p>
+      </section>
+
+      <section id="recent">
+        <h2>Recent work</h2>
+
+        <p>Intro (GitHub, StackOverflow?)</p>
+
+        <ul>
+          <li>
+            <a href="https://wjlewis.github.io/pymos">A Pythagorean Mosaic</a>
+            (Typescript, React)
+          </li>
+          <li>
+            <a href="https://github.com/wjlewis/ramo">ramo</a> (TypeScript)
+          </li>
+          <li>
+            <a href="https://wjlewis.github.io/giraffe">Giraffe</a> (TypeScript,
+            React)
+          </li>
+          <li>
+            <a href="https://wjlewis.github.io/tm">tm</a> (TypeScript, React)
+          </li>
+          <li>
+            <a href="https://github.com/wjlewis/taste-of-lambda"
+              >A Taste of the Lambda Calculus</a
+            >
+            (Rust)
+          </li>
+        </ul>
+      </section>
+
+      <section id="writing">
+        <h2>Writing</h2>
+
+        <p>Intro</p>
+
+        <ul>
+          <li><a href="">Better ADTs in Typescript</a></li>
+          <li><a href="">Scheme and Variations: A Baseline Evaluator</a></li>
+          <li><a href="">Induction and Recursion</a></li>
+          <li><a href="">Scheme and Variations: Dynamic Binding</a></li>
+        </ul>
+      </section>
+
+      <section id="cv">
+        <h2>CV</h2>
+
+        <h3>Education</h3>
+
+        <ul>
+          <li>in-tech</li>
+          <li>Orange Bees</li>
+        </ul>
+      </section>
+
+      <section id="about">
+        <h2>About me</h2>
+
+        <p>asdflkajsdf</p>
+      </section>
+
+      <section id="contact">
+        <h2>Get in touch</h2>
+
         <p>
-          I'm interested in just about anything, but I find myself most often
-          thinking about Γ_:_⊢_
+          The easiest way to reach me is by email:
+          <a href="mailto:wjlewis2@protonmail.com">wjlewis2@protonmail.com</a>.
         </p>
-      </div>
-    </div>
+      </section>
+    </article>
+
+    <footer></footer>
 
     <script>
-      var UP_FILL = '#2b6c74';
-      var DOWN_FILL = '#ffa62b';
-      var WALL_FILL = '#1b3a4a';
-      var SHADOW_FILL = '#d18a29';
+      var themeToggle = document.getElementById('theme-toggle');
 
-      var DEAD = 0;
-      var ALIVE = 1;
-
-      var CELL_SCHEMA = [
-        // prettier-ignore
-        {
-          neighbors: 'DDD',
-          down: [[0, 0], [4, 0], [4, 4], [0, 4]],
-          shadow: [[0, 0]],
-          wall: [[0, 0]],
-        },
-        // prettier-ignore
-        {
-          neighbors: 'DDU',
-          down: [[0, 0], [4, 0], [3, 2], [1, 3], [1, 4], [0, 4]],
-          shadow: [[3, 2], [3, 4], [1, 4], [1, 3]],
-          wall: [[4, 0], [4, 4], [3, 4], [3, 2]],
-        },
-        // prettier-ignore
-        {
-          neighbors: 'DUD',
-          down: [[0, 0], [1, 0], [1, 3], [4, 3], [4, 4], [0, 4]],
-          shadow: [[1, 0], [3, 0], [3, 2], [4, 2], [4, 3], [1, 3]],
-          wall: [[3, 0],[4, 0],[4, 2],[3, 2]],
-        },
-        // prettier-ignore
-        {
-          neighbors: 'DUU',
-          down: [[0, 0],[1, 0],[1, 4],[0, 4]],
-          shadow: [[1, 0],[3, 0],[3, 4],[1, 4]],
-          wall: [[3, 0],[4, 0],[4, 4],[3, 4]],
-        },
-        // prettier-ignore
-        {
-          neighbors: 'UDD',
-          down: [[4, 0],[4, 4],[0, 4],[0, 3],[1, 3],[3, 2]],
-          shadow: [[0, 2],[3, 2],[1, 3],[0, 3]],
-          wall: [[0, 0],[4, 0],[3, 2],[0, 2]],
-        },
-        // prettier-ignore
-        {
-          neighbors: 'UDU',
-          down: [[0, 3],[1, 3],[1, 4],[0, 4]],
-          shadow: [[0, 2],[3, 2],[3, 4],[1, 4],[1, 3],[0, 3]],
-          wall: [[0, 0],[4, 0],[4, 4],[3, 4],[3, 2],[0, 2]],
-        },
-        // prettier-ignore
-        {
-          neighbors: 'UUD',
-          down: [[0, 3],[4, 3],[4, 4],[0, 4]],
-          shadow: [[0, 2],[4, 2],[4, 3],[0, 3]],
-          wall: [[0, 0],[4, 0],[4, 2],[0, 2]],
-        },
-        // prettier-ignore
-        {
-          neighbors: 'UUU',
-          down: [[0, 3],[1, 3],[1, 4],[0, 4]],
-          shadow: [[0, 2],[3, 2],[3, 4],[1, 4],[1, 3],[0, 3]],
-          wall: [[0, 0],[4, 0],[4, 4],[3, 4],[3, 2],[0, 2]],
-        },
-      ];
-
-      var canvas = document.getElementsByTagName('canvas')[0];
-      var ctx = canvas.getContext('2d', { alpha: false });
-
-      var CANVAS_LEFT = 0;
-      var CANVAS_TOP = 0;
-      var GRID_WIDTH = 1;
-      var GRID_HEIGHT = 1;
-      var CELL_SIDE = 1;
-      var ROWS = 1;
-      var COLS = 1;
-      var CELL_SPRITES = {};
-      var GRID_CELLS = [];
-      var HOVER_ROW = 0;
-      var HOVER_COL = 0;
-
-      var $hover = document.getElementById('hover');
-
-      document.addEventListener('mousemove', updateHover);
-
-      function updateHover(e) {
-        var row = Math.floor((e.clientY - CANVAS_TOP) / CELL_SIDE);
-        var col = Math.floor((e.clientX - CANVAS_LEFT) / CELL_SIDE);
-
-        if (row >= 0 && col >= 0 && row < ROWS && col < COLS) {
-          $hover.style.display = 'unset';
-          $hover.style.top = row * CELL_SIDE + 'px';
-          $hover.style.left = col * CELL_SIDE + 'px';
-          HOVER_ROW = row;
-          HOVER_COL = col;
+      themeToggle.addEventListener('click', function () {
+        if (document.body.classList.contains('dark')) {
+          document.body.classList.remove('dark');
+          themeToggle.innerText = 'Dark';
         } else {
-          $hover.style.display = 'none';
+          document.body.classList.add('dark');
+          themeToggle.innerText = 'Light';
         }
-      }
-
-      $hover.addEventListener('click', toggleHover);
-
-      function toggleHover() {
-        var r = HOVER_ROW;
-        var c = HOVER_COL;
-
-        GRID_CELLS[r][c] = toggleCell(GRID_CELLS[r][c]);
-        drawCell(r, c, true);
-      }
-
-      function drawCell(row, col, updateDownstream = false) {
-        if (GRID_CELLS[row][col] === DEAD) {
-          ctx.fillStyle = UP_FILL;
-          ctx.fillRect(col * CELL_SIDE, row * CELL_SIDE, CELL_SIDE, CELL_SIDE);
-        } else {
-          var n = statusToLevel(GRID_CELLS[(row + ROWS - 1) % ROWS][col]);
-          var ne = statusToLevel(
-            GRID_CELLS[(row + ROWS - 1) % ROWS][(col + 1) % COLS]
-          );
-          var e = statusToLevel(GRID_CELLS[row][(col + 1) % COLS]);
-
-          var index = n + ne + e;
-          var sprite = CELL_SPRITES[index];
-          if (sprite) {
-            ctx.drawImage(sprite, col * CELL_SIDE, row * CELL_SIDE);
-          }
-        }
-
-        if (updateDownstream) {
-          drawCell(row, (col + COLS - 1) % COLS);
-          drawCell((row + 1) % ROWS, (col + COLS - 1) % COLS);
-          drawCell((row + 1) % ROWS, col);
-        }
-      }
-
-      function toggleCell(status) {
-        return status === ALIVE ? DEAD : ALIVE;
-      }
-
-      window.addEventListener('resize', init);
-
-      function init() {
-        computeDims(30, 20, 60);
-        canvas.width = GRID_WIDTH;
-        canvas.height = GRID_HEIGHT;
-        canvas.style.width = GRID_WIDTH + 'px';
-        canvas.style.height = GRID_HEIGHT + 'px';
-
-        var canvasInfo = canvas.getBoundingClientRect();
-        CANVAS_LEFT = canvasInfo.left;
-        CANVAS_TOP = canvasInfo.top;
-
-        $hover.style.width = CELL_SIDE + 'px';
-        $hover.style.height = CELL_SIDE + 'px';
-
-        CELL_SPRITES = {};
-        for (var i = 0; i < CELL_SCHEMA.length; i++) {
-          CELL_SPRITES[CELL_SCHEMA[i].neighbors] = drawSprite(CELL_SCHEMA[i]);
-        }
-
-        ctx.fillStyle = UP_FILL;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        drawGrid();
-      }
-
-      function computeDims(minCols, minRows, maxCellSide) {
-        maxCellSide = Math.floor(maxCellSide / 4) * 4;
-
-        var padding = Math.min(window.innerWidth, window.innerHeight) / 12;
-        var maxWidth = window.innerWidth - padding;
-        var maxHeight = window.innerHeight - padding;
-
-        // Choice of `maxCellSide` as cutoff is arbitrary
-        if (maxWidth < maxCellSide || maxHeight < maxCellSide) {
-          COLS = 1;
-          ROWS = 1;
-          GRID_WIDTH = maxCellSide;
-          GRID_HEIGHT = maxCellSide;
-          CELL_SIDE = maxCellSide;
-        }
-
-        if (
-          maxWidth / minCols >= maxCellSide &&
-          maxHeight / minRows >= maxCellSide
-        ) {
-          var cols = Math.floor(maxWidth / maxCellSide);
-          var rows = Math.floor(maxHeight / maxCellSide);
-          var width = cols * maxCellSide;
-          var height = rows * maxCellSide;
-
-          COLS = cols;
-          ROWS = rows;
-          GRID_WIDTH = width;
-          GRID_HEIGHT = height;
-          CELL_SIDE = maxCellSide;
-        } else if (maxWidth / maxHeight > minCols / minRows) {
-          // Contrained by height
-          var side = Math.floor(maxHeight / minRows / 4) * 4;
-          var height = minRows * side;
-          var rows = minRows;
-          var cols = Math.floor(maxWidth / side);
-          var width = cols * side;
-
-          COLS = cols;
-          ROWS = rows;
-          GRID_WIDTH = width;
-          GRID_HEIGHT = height;
-          CELL_SIDE = side;
-        } else {
-          // Constrained by width
-          var side = Math.floor(maxWidth / minCols / 4) * 4;
-          var width = minCols * side;
-          var cols = minCols;
-          var rows = Math.floor(maxHeight / side);
-          var height = rows * side;
-
-          COLS = cols;
-          ROWS = rows;
-          GRID_WIDTH = width;
-          GRID_HEIGHT = height;
-          CELL_SIDE = side;
-        }
-      }
-
-      function createEmptyGrid() {
-        GRID_CELLS = [];
-        for (var r = 0; r < ROWS; r++) {
-          var row = [];
-          for (var c = 0; c < COLS; c++) {
-            row.push(DEAD);
-          }
-          GRID_CELLS.push(row);
-        }
-      }
-
-      function drawGrid() {
-        for (var r = 0; r < GRID_CELLS.length; r++) {
-          for (var c = 0; c < GRID_CELLS[r].length; c++) {
-            if (GRID_CELLS[r][c] === DEAD) {
-              continue;
-            }
-
-            var n = statusToLevel(GRID_CELLS[(r + ROWS - 1) % ROWS][c]);
-            var ne = statusToLevel(
-              GRID_CELLS[(r + ROWS - 1) % ROWS][(c + COLS + 1) % COLS]
-            );
-            var e = statusToLevel(GRID_CELLS[r][(c + COLS + 1) % COLS]);
-
-            var index = n + ne + e;
-            var sprite = CELL_SPRITES[index];
-            if (sprite) {
-              ctx.drawImage(sprite, c * CELL_SIDE, r * CELL_SIDE);
-            }
-          }
-        }
-      }
-
-      function statusToLevel(status) {
-        return status === ALIVE ? 'D' : 'U';
-      }
-
-      function drawSprite(scheme) {
-        var canvas = document.createElement('canvas');
-        canvas.width = CELL_SIDE;
-        canvas.height = CELL_SIDE;
-        var ctx = canvas.getContext('2d', { alpha: false });
-
-        var unit = CELL_SIDE / 4;
-
-        ctx.fillStyle = DOWN_FILL;
-        ctx.beginPath();
-        ctx.moveTo(scheme.down[0][0] * unit, scheme.down[0][1] * unit);
-        for (var i = 1; i < scheme.down.length; i++) {
-          ctx.lineTo(scheme.down[i][0] * unit, scheme.down[i][1] * unit);
-        }
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.fillStyle = SHADOW_FILL;
-        ctx.beginPath();
-        ctx.moveTo(scheme.shadow[0][0] * unit, scheme.shadow[0][1] * unit);
-        for (var i = 1; i < scheme.shadow.length; i++) {
-          ctx.lineTo(scheme.shadow[i][0] * unit, scheme.shadow[i][1] * unit);
-        }
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.fillStyle = WALL_FILL;
-        ctx.beginPath();
-        ctx.moveTo(scheme.wall[0][0] * unit, scheme.wall[0][1] * unit);
-        for (var i = 1; i < scheme.wall.length; i++) {
-          ctx.lineTo(scheme.wall[i][0] * unit, scheme.wall[i][1] * unit);
-        }
-        ctx.closePath();
-        ctx.fill();
-
-        return canvas;
-      }
-
-      computeDims(30, 20, 60);
-      createEmptyGrid();
-      init();
+      });
     </script>
   </body>
 </html>
