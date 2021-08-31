@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Welcome!</title>
+    <link rel="stylesheet" href="./common.css" />
+  </head>
+
+  <body>
+    <header>
+      <nav>
+        <a href="https://wjlewis.github.io" target="_blank">
+          <img id="icon" src="./assets/sonobe.svg" alt="A Sonobe module" />
+        </a>
+        <div class="nav-links">
+          <button id="theme-toggle">Dark</button>
+        </div>
+      </nav>
+    </header>
+
+    <article>
+      <section>
+        <h1>How JavaScript Closures Work</h1>
+
+        <p>
+          &ldquo;Closures&rdquo; are a beguiling, ubiquitous, and incredibly
+          useful feature of JavaScript (and many languages besides).
+          Unfortunately, like many general and powerful language features, they
+          often appear shrouded in mystery. This article is an attempt to
+          demystify closures by showing that they aren't <em>special</em> per
+          se, but are instead a natural consequence of the way functions are
+          evaluated in JavaScript.
+        </p>
+      </section>
+
+      <section>
+        <h2>Evaluating Arithmetic Expressions</h2>
+
+        <p>
+          We'll start by writing an <em>evaluator</em> for arithmetic
+          expressions. This will give us a taste for evaluation while remaining
+          essentially simple.
+        </p>
+      </section>
+    </article>
+
+    <footer></footer>
+
+    <script>
+      var themeToggle = document.getElementById('theme-toggle');
+
+      themeToggle.addEventListener('click', function () {
+        if (document.body.classList.contains('dark')) {
+          document.body.classList.remove('dark');
+          themeToggle.innerText = 'Dark';
+        } else {
+          document.body.classList.add('dark');
+          themeToggle.innerText = 'Light';
+        }
+      });
+    </script>
+
+    <script src="https://unpkg.com/bootleg-hl"></script>
+
+    <script>
+      function value(expr) {
+        switch (expr.type) {
+          case 'NUM':
+            return expr.value;
+          case '+':
+            return value(expr.lhs) + value(expr.rhs);
+          case '*':
+            return value(expr.lhs) + value(expr.rhs);
+          case 'FUNC':
+            return { type: 'FUNC_VAL', names: expr.names, body: expr.body };
+          case 'APP': {
+            const op = value(expr.rator);
+            if (op.type !== 'FUNC_VAL') {
+              throw new Error(`Can't apply ${JSON.stringify(op)}`);
+            }
+            const args = expr.rands.map(value);
+
+            // What to do here?
+          }
+          default:
+            throw new Error(`Invalid expression: ${JSON.stringify(expr)}`);
+        }
+      }
+    </script>
+  </body>
+</html>
