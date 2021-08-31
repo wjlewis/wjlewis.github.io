@@ -1,0 +1,68 @@
+@font-face {
+  font-family: 'Source Sans Pro';
+  src: url('./assets/SourceSansPro-Regular.ttf');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Source Sans Pro';
+  src: url('./assets/SourceSansPro-SemiBold.ttf');
+  font-weight: 600;
+}
+
+:root {
+  --body-font: 'Open Sans', sans-serif;
+  --text: #444;
+}
+
+/*
+ * Resets
+ */
+html,
+body {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  overflow: auto;
+}
+
+/*
+ * Main Layout
+ */
+html {
+  font-size: 16px;
+  font-family: var(--body-font);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+body {
+  display: grid;
+  grid-template-rows: 2em auto 2em;
+  grid-template-columns: auto 40em auto;
+}
+
+main {
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+}
+
+/*
+ * Print Layout
+ */
+@media print {
+  html {
+    font-size: 12px;
+  }
+
+  body {
+    display: initial;
+  }
+
+  main {
+    width: 8.5in;
+    height: 11in;
+    padding: 1in 1.5in;
+    box-sizing: border-box;
+  }
+}
