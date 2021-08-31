@@ -14,7 +14,7 @@
           <img id="icon" src="./assets/sonobe.svg" alt="A Sonobe module" />
         </a>
         <div class="nav-links">
-          <a href="#cv">CV</a>
+          <a href="./cv.html" target="_blank">CV</a>
           <a href="#about">About</a>
           <a href="#contact">Contact</a>
           <a href="https://www.github.com/wjlewis" target="_blank">GitHub</a>
@@ -28,34 +28,114 @@
       <section>
         <h1>Welcome!</h1>
 
-        <p>asdfasdf</p>
+        <p>
+          I'm a software dev interested in just about everything. Among other
+          things, I use this site to exhibit some of my recent work and
+          writings. Feel free to reach out with any comments or questions via
+          <a href="#contact">email</a> or GitHub issues.
+        </p>
       </section>
 
       <section id="recent">
         <h2>Recent work</h2>
 
-        <p>Intro (GitHub, StackOverflow?)</p>
+        <p>
+          Over the past few years, my two most enduring interests have been
+          programming languages and rich user interfaces. All of the projects
+          below and most of my recent work has been related to at least one of
+          these topics.
+        </p>
 
         <ul>
           <li>
-            <a href="https://wjlewis.github.io/pymos">A Pythagorean Mosaic</a>
-            (Typescript, React)
+            <div class="indented">
+              <a href="https://wjlewis.github.io/pymos">A Pythagorean Mosaic</a>
+              (Typescript, React)
+
+              <p>
+                An interactive, animated demonstration of the Pythagorean
+                Theorem, based on a &ldquo;mosaic proof&rdquo; by Paul Lockhart.
+                The implementation includes an algebraic (and effect-free)
+                approach to animation, along with some special-purpose hooks.
+                The result is a set of animations that can be modified in
+                real-time, and scrubbed back and forth.
+              </p>
+            </div>
           </li>
+
           <li>
-            <a href="https://github.com/wjlewis/ramo">ramo</a> (TypeScript)
+            <div class="indented">
+              <a href="https://github.com/wjlewis/ramo">ramo</a> (TypeScript)
+
+              <p>
+                A port of Friedman, Byrd et al.'s <em>miniKanren</em> to
+                TypeScript. Whereas functions are at the heart of many
+                programming languages, MiniKanren (and thus <em>ramo</em>) is
+                founded on the more general concept of a <em>relation</em>.
+                Relations free us from having to deal with the details of
+                <em>how</em> computations are carried out; all that is required
+                is a description of <em>what</em> we would like to be the case.
+                See the
+                <a href="https://github.com/wjlewis/ramo/blob/master/README.md">
+                  README
+                </a>
+                for a short tutorial on this mind-bending paradigm.
+              </p>
+            </div>
           </li>
+
           <li>
-            <a href="https://wjlewis.github.io/giraffe">Giraffe</a> (TypeScript,
-            React)
+            <div class="indented">
+              <a href="https://wjlewis.github.io/giraffe">Giraffe</a>
+              (TypeScript, React, <em>in-progress</em>)
+
+              <p>
+                A tool for creating and editing graphs (that is, networks). My
+                hope is to make it easy for graph-theorists to import graphs
+                into tools like Mathematica (entering them by hand is painful
+                and error-prone). The implementation&mdash;and drag-and-drop in
+                particular&mdash;makes heavy use of algebraic data types. Paired
+                with React's useReducer hook, this makes for very pleasant
+                programming.
+              </p>
+            </div>
           </li>
+
           <li>
-            <a href="https://wjlewis.github.io/tm">tm</a> (TypeScript, React)
+            <div class="indented">
+              <a href="https://wjlewis.github.io/tm">tm</a> (TypeScript, React)
+
+              <p>
+                A Turing machine editor and simulator. I'm fascinated by
+                computation, and had dreamed of creating a decent simulator
+                since I first learned about Turing machines.
+              </p>
+            </div>
           </li>
+
           <li>
-            <a href="https://github.com/wjlewis/taste-of-lambda"
-              >A Taste of the Lambda Calculus</a
-            >
-            (Rust)
+            <div class="indented">
+              <a href="https://github.com/wjlewis/taste-of-lambda"
+                >A Taste of the Lambda Calculus</a
+              >
+              (Rust, <em>in-progress</em>)
+
+              <p>
+                At the moment, this repository contains only a parser and
+                normalizer for lambda terms. My aim is to create a programming
+                environment for the lambda calculus accompanied by an
+                introductory book on the subject. This would include treatments
+                of some intriguing topics like quotation and metacircular
+                reduction that are difficult to approach with Turing machines.
+              </p>
+
+              <p>
+                Even though the project is far from complete, you'll find an
+                error-tolerant parser and a normalizer that reduces (De
+                Bruijn-indexed) terms using normalization-by-evaluation. These
+                form the core of what I hope will be more to come.
+              </p>
+            </div>
           </li>
         </ul>
       </section>
@@ -63,31 +143,39 @@
       <section id="writing">
         <h2>Writing</h2>
 
-        <p>Intro</p>
+        <p>
+          For several years now, I've tried to compose a series of essays on
+          topics I find interesting. However, every attempt so far has failed.
+          What you find below is the result of a new effort to finally put into
+          words a few ideas that I find worthwhile.
+        </p>
 
         <ul>
-          <li><a href="">Better ADTs in Typescript</a></li>
-          <li><a href="">Scheme and Variations: A Baseline Evaluator</a></li>
-          <li><a href="">Induction and Recursion</a></li>
-          <li><a href="">Scheme and Variations: Dynamic Binding</a></li>
-        </ul>
-      </section>
-
-      <section id="cv">
-        <h2>CV</h2>
-
-        <h3>Education</h3>
-
-        <ul>
-          <li>in-tech</li>
-          <li>Orange Bees</li>
+          <li><a href="">How JavaScript Closures Work</a></li>
+          <li>More to come...</li>
         </ul>
       </section>
 
       <section id="about">
         <h2>About me</h2>
 
-        <p>asdflkajsdf</p>
+        <p>
+          I've lived in Greenville, South Carolina my entire life. However, both
+          of my parents grew up in Milwaukee, Wisconsin, so I'm a bit of a
+          cultural mutt dog. I won the parent lottery (as Randy Pausch put it),
+          and I can't imagine a more wonderful childhood than the one my
+          siblings and I enjoyed. I attended Furman University (where my father
+          teaches mathematics) and majored in math and physics. Furman was good
+          to me, and I look back fondly on those years. I met my wife in my
+          final year of school, and we were married four years later. She
+          teaches fourth grade and manages to sleep occasionally.
+        </p>
+
+        <img
+          src="./assets/headshot.jpg"
+          width="250px"
+          alt="A photo of myself"
+        />
       </section>
 
       <section id="contact">

@@ -1,0 +1,152 @@
+@font-face {
+  font-family: 'Source Sans Pro';
+  src: url('./assets/SourceSansPro-Regular.ttf');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Source Sans Pro';
+  src: url('./assets/SourceSansPro-SemiBold.ttf');
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: 'Merriweather';
+  src: url('./assets/Merriweather-Bold.ttf');
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: 'Fira Code';
+  src: url('./assets/FiraCode-Regular.ttf');
+  font-weight: 400;
+}
+
+:root {
+  --header-font: 'Merriweather', serif;
+  --body-font: 'Open Sans', sans-serif;
+  --code-font: 'Fira Code', monospace;
+  --text: #444;
+  --blue: #4971dd;
+}
+
+/*
+ * Resets
+ */
+html,
+body {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  overflow: auto;
+}
+
+/*
+ * Desktop Layout
+ */
+html {
+  font-size: 16px;
+  font-family: var(--body-font);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+body {
+  display: grid;
+  grid-template-rows: 2em auto 2em;
+  grid-template-columns: auto 40em auto;
+}
+
+main {
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+}
+
+/*
+ * Miscellaneous
+ */
+h1,
+h2,
+h3 {
+  font-family: var(--header-font);
+}
+
+h1 {
+  font-size: 2em;
+  text-align: center;
+  margin: 0.5em 0;
+}
+
+h2 {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+a {
+  color: var(--blue);
+}
+
+ul {
+  list-style-type: none;
+  margin: unset;
+  padding: 0;
+  padding-left: 2em;
+}
+
+.spaced {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.indented {
+  margin-bottom: 0.5em;
+}
+
+.indented p {
+  margin: unset;
+  padding-left: 2em;
+}
+
+.indented li {
+  margin-bottom: 0.3em;
+}
+
+/*
+ * Adaptive/Print Layouts
+ */
+@media print {
+  html {
+    font-size: 12px;
+  }
+
+  body {
+    display: initial;
+  }
+
+  main {
+    width: 8.5in;
+    height: 11in;
+    padding: 1in 1.5in;
+    box-sizing: border-box;
+  }
+
+  /*
+  a {
+    text-decoration: none;
+    color: var(--text);
+  }
+  */
+}
+
+/* Phones */
+@media screen and (max-width: 760px) {
+  html {
+    font-size: 12px;
+  }
+
+  body {
+    grid-template-rows: 1em auto 1em;
+    grid-template-columns: 10px auto 10px;
+  }
+}

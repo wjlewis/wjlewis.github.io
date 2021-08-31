@@ -124,7 +124,7 @@ h2,
 h3 {
   font-family: var(--header-font);
   font-weight: bold;
-  margin: 0.5em 0;
+  margin: 0;
 }
 
 h1 {
@@ -133,10 +133,13 @@ h1 {
 
 h2 {
   font-size: 1.4em;
+  margin: 0;
+  margin-top: 2em;
+  margin-bottom: 0.5em;
 }
 
 h3 {
-  font-size: 1.2em;
+  font-size: 1.1em;
 }
 
 p {
@@ -177,6 +180,11 @@ section {
 .nav-links a,
 .nav-links button {
   margin-left: 1em;
+}
+
+.indented p {
+  margin: 0.1em 0;
+  padding-left: 2em;
 }
 
 button {
