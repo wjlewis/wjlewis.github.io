@@ -15,11 +15,8 @@
         </a>
         <div class="nav-links">
           <a href="./cv.html" target="_blank">CV</a>
-          <a href="#about">About</a>
           <a href="#contact">Contact</a>
           <a href="https://www.github.com/wjlewis" target="_blank">GitHub</a>
-
-          <button id="theme-toggle">Dark</button>
         </div>
       </nav>
     </header>
@@ -146,28 +143,6 @@
         <p>Coming soon...</p>
       </section>
 
-      <section id="about">
-        <h2>About me</h2>
-
-        <p>
-          I've lived in Greenville, South Carolina my entire life. However, both
-          of my parents grew up in Milwaukee, Wisconsin, so I'm a bit of a
-          cultural mutt dog. I won the parent lottery (as Randy Pausch put it),
-          and I can't imagine a more wonderful childhood than the one my
-          siblings and I enjoyed. I attended Furman University (where my father
-          teaches mathematics) and majored in math and physics. Furman was good
-          to me, and I look back fondly on those years. I met my wife in my
-          final year of school, and we were married four years later. She
-          teaches fourth grade and manages to sleep occasionally.
-        </p>
-
-        <img
-          src="./assets/headshot.jpg"
-          width="250px"
-          alt="A photo of myself"
-        />
-      </section>
-
       <section id="contact">
         <h2>Get in touch</h2>
 
@@ -179,19 +154,5 @@
     </article>
 
     <footer></footer>
-
-    <script>
-      var themeToggle = document.getElementById('theme-toggle');
-
-      themeToggle.addEventListener('click', function () {
-        if (document.body.classList.contains('dark')) {
-          document.body.classList.remove('dark');
-          themeToggle.innerText = 'Dark';
-        } else {
-          document.body.classList.add('dark');
-          themeToggle.innerText = 'Light';
-        }
-      });
-    </script>
   </body>
 </html>
