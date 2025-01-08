@@ -39,12 +39,10 @@ That is, the term `(\.b) t` is reducible to `b`, where all occurrences of the
 bound variable with index `0` (the one bound by this abstraction) in `b`
 are replaced with the operand term `t`.
 
-So _normalization_ is just repeated _reduction_, which in turns involves
-_substitution_.
+So _reduction_ is largely a process of repeated _substitution_.
 
 ## Substitution
 
-Let's look at substitution first.
 Lambda terms are just fancy trees, so replacing occurrences of bound variables
 in a "host term" with another term requires recursing through the host term,
 doing the appropriate thing with each variant:
@@ -85,14 +83,17 @@ redexes:
 ```haskell
 -- | Reduce beta redexes in the provided term.
 reduce :: Term -> Term
-reduce (App (Abs body) rand) = subst 0 rand body
 reduce t@(Var _) = t
 reduce (Abs body) = Abs (reduce body)
-reduce (App rator rand) = App (reduce rator) (reduce rand)
+reduce (App rator rand) = case reduce rator of
+  (Abs body) -> reduce $ subst 0 rand body
+  op -> App op $ reduce rand
 ```
 
-The only interesting case is the very first one, in which we replace a beta
-redex with the appropriate substitution.
+The only interesting case is the final one, in which we replace a beta redex
+with the appropriate substitution.
+Note that we call `reduce` on the result of the substitution, since it might
+have created new redexes to reduce.
 
 Unfortunately it's incorrect, and for a subtle reason.
 The problem is that we're stripping off a binder without adjusting the indices
@@ -173,11 +174,13 @@ With `shift` in hand, we can correct `reduce`:
 
 ```haskell
 reduce :: Term -> Term
-reduce (App (Abs body) rand) =
-  let arg = shift 1 rand
-      subbed = subst 0 arg body
-   in shift (-1) subbed
 -- ...
+reduce (App rator rand) = case reduce rator of
+  (Abs body) ->
+    let arg = shift 1 rand
+        subbed = subst 0 arg body
+     in reduce $ shift (-1) subbed
+  op -> App op $ reduce rand
 ```
 
 And the indexing problem is fixed!
@@ -191,7 +194,7 @@ bad = reduce $ Abs (App (Abs (App (Var 0) (Var 1))) (Var 0))
 There's actually _another_ lingering bug related to incorrect indices that's not
 addressed by our changes.
 Specifically, `subst` needs to also keep track of how many binders have been
-crossed, and shift the substitution expression accordingly:
+crossed, and shift the substituted expression accordingly:
 
 ```haskell
 subst :: Int -> Term -> Term -> Term
@@ -207,122 +210,76 @@ subst i sub = subst' 0
        in App rator' rand'
 ```
 
-## Normalization
+## A Stronger Encoding
 
-_Normalizing_ a lambda term involves reducing it as much as possible, that is,
-until it doesn't contain any beta redexes.
-It would seem like the easiest way to do this is to repeatedly call `reduce`,
-checking after each iteration if the resulting term is different from the one
-provided to it:
+As it stands, `reduce` makes a fairly weak claim:
 
 ```haskell
-norm :: Term -> Term
-norm t =
-  let t' = reduce t
-   in if t' == t
-        then t
-        else norm t'
+reduce :: Term -> Term
 ```
 
-The problem is that some terms reduce to _themselves_, and are still in need of
-reduction:
+namely, that it transforms a term into another term.
+This admits, among other things, the following incorrect definition:
 
 ```haskell
-(\x.(x x)) \x.(x x)
-==> (\x.(x x)) \x.(x x)
-==> ...
+reduce = id
 ```
 
-So we need to think a bit harder.
-Let's modify `reduce` to return _two_ pieces of information:
+We can do better.
 
-- The (possibly) reduced term.
-- A boolean flag indicating if no further reductions are possible.
-
-Here's `reduce`, modified in this way:
+Specifically, reducing a term produces another term in which _no beta redexes
+occur_, and this is the kind of thing we can express in a datatype:
 
 ```haskell
-reduce :: Term -> (Term, Bool)
-reduce (App (Abs body) rand) =
-  let arg = shift 1 rand
-      subbed = subst 0 arg body
-   in (shift (-1) subbed, False)
-reduce t@(Var _) = (t, True)
-reduce (Abs body) =
-  let (body', done) = reduce body
-   in (Abs body', done)
-reduce (App rator rand) =
-  let (rator', done1) = reduce rator
-      (rand', done2) = reduce rand
-   in (App rator' rand', done1 && done2)
-```
-
-Notice how we flag the result of reducing a beta redex as "not done", since it
-may have introduced new redexes that we didn't encounter as we recursed through
-the original term.
-Additionally, we only flag an application as "done" if we weren't able to make
-any progress on either the operator or the operand.
-
-### Decluttering
-
-This works, but there's a lot of annoying "piping" code for managing the flags.
-We can clarify `reduce` by making two changes to the return type:
-
-- Swapping the positions of the term and the flag so we can make better use of
-  the `Functor` and `Applicative` instances for `(,)`.
-- Replacing the `Bool` flag with a `newtype`d `Bool` that has a `Monoid`
-  instance.
-
-The second is necessary because `(a,)` only has an `Applicative` instance if `a`
-has a `Monoid` instance, and `Bool` doesn't have one.
-
-Here's what the `newtype` looks like:
-
-```haskell
-newtype IsDone = IsDone Bool
+data ReducedTerm
+  = ReducedAbs ReducedTerm
+  | Stuck StuckTerm
   deriving (Show)
 
-instance Semigroup IsDone where
-  IsDone l <> IsDone r = IsDone (l && r)
-
-instance Monoid IsDone where
-  mempty = IsDone True
+data StuckTerm
+  = StuckVar Int
+  | StuckApp StuckTerm ReducedTerm
+  deriving (Show)
 ```
 
-This alone is nothing spectacular, but the upshot is that can now write `reduce`
-like so:
+The key observation is that it's not possible to concoct a `ReducedTerm`
+containing a beta redex, since any term in the operator position of an
+application is "stuck" (either a variable, or an application that is itself
+stuck).
+Of course, every `ReducedTerm` is equivalent to some "regular" `Term`:
 
 ```haskell
-reduce :: Term -> (IsDone, Term)
-reduce (App (Abs body) rand) =
-  let arg = shift 1 rand
-      subbed = subst 0 arg body
-   in keepGoing $ shift (-1) subbed
-reduce t@(Var _) = pure t
-reduce (Abs body) = Abs <$> reduce body
-reduce (App rator rand) = App <$> reduce rator <*> reduce rand
-
-keepGoing :: Term -> (IsDone, Term)
-keepGoing t = (IsDone False, t)
+-- | Convert a reduced term to a term (the reduced terms are "embedded" in the
+-- set of terms).
+toTerm :: ReducedTerm -> Term
+toTerm (ReducedAbs body) = Abs $ toTerm body
+toTerm (Stuck s) = unStuck s
+  where
+    unStuck (StuckVar i) = Var i
+    unStuck (StuckApp rator rand) =
+      let rator' = unStuck rator
+          rand' = toTerm rand
+       in App rator' rand'
 ```
 
-## Normalization, Finally
-
-With `reduce` fixed, `norm` writes itself:
+With `ReducedTerm` in hand, we can sharpen the type of `reduce`:
 
 ```haskell
--- | Attempt to normalize a lambda term by repeatedly reducing beta redexes
--- wherever they occur.
-norm :: Term -> Term
-norm t =
-  let (IsDone d, t') = reduce t
-   in if d then t' else norm t'
+reduce :: Term -> ReducedTerm
+reduce (Var i) = Stuck $ StuckVar i
+reduce (Abs body) = ReducedAbs $ reduce body
+reduce (App rator rand) = case reduce rator of
+  (ReducedAbs body) ->
+    let arg = shift 1 rand
+        subbed = subst 0 arg (toTerm body)
+     in reduce $ shift (-1) subbed
+  (Stuck op) -> Stuck $ StuckApp op $ reduce rand
 ```
 
 ## A Few Examples
 
 We end this post with a few classics examples.
-First: the successor of the successor of the successor of zero is three:
+First, the successor of the successor of the successor of zero is three:
 
 ```haskell
 suc = Abs $ Abs $ Abs $ App (Var 1) (App (App (Var 2) (Var 1)) (Var 0))
@@ -331,11 +288,11 @@ zero = Abs $ Abs (Var 0)
 
 three = App suc $ App suc $ App suc zero
 
-norm three
+toTerm $ reduce three
 -- Abs (Abs (App (Var 1) (App (Var 1) (App (Var 1) (Var 0)))))
 ```
 
-De Bruijn indices really are a pain to work with by hand...
+_De Bruijn indices are really a pain to work with by hand..._
 
 We can also construct pairs and project their components:
 
@@ -348,11 +305,26 @@ snd' = Abs $ App (Var 0) (Abs $ Abs (Var 0))
 
 pair = App (App cons zero) three
 
-norm $ App fst' pair
+toTerm $ reduce $ App fst' pair
 -- Abs (Abs (Var 0))
 
-norm $ App snd' pair
+toTerm $ reduce $ App snd' pair
 -- Abs (Abs (App (Var 1) (App (Var 1) (App (Var 1) (Var 0)))))
+```
+
+(I've applied `toTerm` to the output of `reduce` to make the results a little
+easier to read.)
+
+Finally, we should check that the infamous _Omega combinator_ can't be
+normalized:
+
+```haskell
+omega = Abs (App (Var 0) (Var 0))
+reduce $ App omega omega
+-- waiting...
+-- ...
+-- ...
+-- Ctrl^C
 ```
 
 Well that's enough fun for now.
