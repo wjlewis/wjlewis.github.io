@@ -39,7 +39,7 @@ That is, the term `(\.b) t` is reducible to `b`, where all occurrences of the
 bound variable with index `0` (the one bound by this abstraction) in `b`
 are replaced with the operand term `t`.
 
-So _reduction_ is largely a process of repeated _substitution_.
+So _reduction_ is just a process of repeated _substitution_.
 
 ## Substitution
 
