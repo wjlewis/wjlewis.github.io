@@ -12,3 +12,5 @@ title: 'Home'
     </li>
   {% endfor %}
 </ul>
+
+<a href="/quotes">Quotes</a>
