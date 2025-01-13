@@ -23,11 +23,11 @@ which means that `em_not_false` is a function:
 
 ```lean
 theorem em_not_false : ¬¬(p ∨ ¬p) :=
-  fun (hNotPem : ¬(p ∨ ¬p)) =>
+  fun (hNotEm : ¬(p ∨ ¬p)) =>
     sorry
 ```
 
-That is, it's a function that transforms a _hypothesis_ that PEM _is_ `False`
+That is, it's a function that transforms a _hypothesis_ that EM _is_ `False`
 into a proof of `False`.
 According to the Curry-Howard Isomorphism, `fun (h : p) => ...` can be
 interpreted as _Supposing `p` is `True`, `...`_.
@@ -49,7 +49,7 @@ What `em_false` says is:
 > For _any_ proposition `p`, given either a proof of `p` or a proof of `¬p`,
 > I'll give you a proof of `False`.
 
-Let's try it out without the simplest proposition of all:
+Let's try it out with the simplest proposition of all:
 
 ```lean
 /--  A proof of `False` using `em_false` and a proof of `True`. -/

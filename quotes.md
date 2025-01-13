@@ -53,29 +53,11 @@ permalink: /quotes
 >
 > \- Frank Herbert
 
-> The willow submits to the wind and prospers until one day it is many
-> willows&mdash;a wall against the wind.
->
-> \- Frank Herbert
-
 > Muad'Dib learned rapidly because his first training was in how to learn.
 > And the first lesson of all was the basic trust that he could learn.
 > It's shocking to find how many people do not believe they can learn, and how
 > many more believe learning to be difficult.
 > Muad'Dib knew that every experience carries its lesson.
->
-> \- Frank Herbert
-
-> The thing the ecologically illiterate don't realise about an ecosystem is that
-> it's a system.
-> A system!
-> A system maintains a certain fluid stability that can be destroyed by a
-> misstep in just one niche.
-> A system has order, flowing from point to point.
-> If something dams that flow, order collapses.
-> The untrained might miss that collapse until it was too late.
-> That's why the highest function of ecology is the understanding of
-> consequences.
 >
 > \- Frank Herbert
 
@@ -96,16 +78,6 @@ permalink: /quotes
 > \- T.H. White
 
 > And now that you don't have to be perfect, you can be good.
->
-> \- John Steinbeck
-
-> And this I believe: that the free, exploring mind of the individual human is
-> the most valuable thing in the world.
-> And this I would fight for: the freedom of the mind to take any direction it
-> wishes, undirected.
-> And this I must fight against: any idea, religion, or government which limits
-> or destroys the individual.
-> This is what I am and what I am about.
 >
 > \- John Steinbeck
 
