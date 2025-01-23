@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Normalizing Lambda Terms</title>
+    <link rel="stylesheet" href="/assets/fonts/fonts.css" />
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="/assets/css/syntax.css" />
+    
+  </head>
+
+  <body>
+    <div id="content">
+      <header>
+        <nav>
+          <a href="/">
+            <img
+              id="sonobe"
+              src="/assets/images/sonobe.svg"
+              alt="A sonobe module"
+            />
+          </a>
+
+          <a href="/about">About</a>
+        </nav>
+      </header>
+
+      <main><h1>Normalizing Lambda Terms</h1>
+
+<p>In this post we’ll look at how to normalize lambda terms in a purely <em>syntactic</em>
+way (i.e. without appealing to neat but fancy techniques like normalization by
+evaluation).</p>
+
+<p>A lambda term is either:</p>
+
+<ul>
+  <li>A bound variable with an integer index indicating how many intervening binders
+one must hurdle in order to reach its binding abstraction.</li>
+  <li>An abstraction, which stores its body.</li>
+  <li>An application of one term to another.</li>
+</ul>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">data</span> <span class="kt">Term</span>
+  <span class="o">=</span> <span class="kt">Var</span> <span class="kt">Int</span>
+  <span class="o">|</span> <span class="kt">Abs</span> <span class="kt">Term</span>
+  <span class="o">|</span> <span class="kt">App</span> <span class="kt">Term</span> <span class="kt">Term</span>
+  <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Show</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Normalizing a term is then a process of repeatedly applying “reductions”
+wherever we can.
+A reduction is possible wherever <em>an abstraction is the operator of an
+application</em> (a so-called “beta redex”).
+In particular, when an abstraction is applied to something, we replace the
+entire application with the result of substituting the operand into the
+abstraction’s body wherever the bound variable occurs.
+In exceedingly pithy formal terms:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="o">\.</span><span class="n">b</span><span class="p">)</span> <span class="n">t</span> <span class="o">==&gt;</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="o">-&gt;</span><span class="n">t</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>That is, the term <code class="language-plaintext highlighter-rouge">(\.b) t</code> is reducible to <code class="language-plaintext highlighter-rouge">b</code>, where all occurrences of the
+bound variable with index <code class="language-plaintext highlighter-rouge">0</code> (the one bound by this abstraction) in <code class="language-plaintext highlighter-rouge">b</code>
+are replaced with the operand term <code class="language-plaintext highlighter-rouge">t</code>.</p>
+
+<p>So <em>reduction</em> is just a process of repeated <em>substitution</em>.</p>
+
+<h2 id="substitution">Substitution</h2>
+
+<p>Lambda terms are just fancy trees, so replacing occurrences of bound variables
+in a “host term” with another term requires recursing through the host term,
+doing the appropriate thing with each variant:</p>
+
+<ul>
+  <li>If the host term is a bound variable, check its index: if it’s equal to the
+index we’re substituting for, return the substitution term; otherwise return
+the host term unchanged.</li>
+  <li>If the host term is an abstraction, recur on the body.
+The only catch is that we need to increment the substitution index to account
+for the fact that we’ve crossed over a binder.</li>
+  <li>If the host term is an application, simply recur on the operator and operand.</li>
+</ul>
+
+<p>Here’s what that looks like:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">-- | Replace all bound variables having the provided index with the indicated</span>
+<span class="c1">-- term inside a host term.</span>
+<span class="c1">--</span>
+<span class="c1">-- That is, `subst i sub host` is morally equivalent to `host[i-&gt;sub]`.</span>
+<span class="n">subst</span> <span class="o">::</span> <span class="kt">Int</span> <span class="o">-&gt;</span> <span class="kt">Term</span> <span class="o">-&gt;</span> <span class="kt">Term</span> <span class="o">-&gt;</span> <span class="kt">Term</span>
+<span class="n">subst</span> <span class="n">i</span> <span class="n">sub</span> <span class="n">t</span><span class="o">@</span><span class="p">(</span><span class="kt">Var</span> <span class="n">j</span><span class="p">)</span>
+  <span class="o">|</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span> <span class="o">=</span> <span class="n">sub</span>
+  <span class="o">|</span> <span class="n">otherwise</span> <span class="o">=</span> <span class="n">t</span>
+<span class="n">subst</span> <span class="n">i</span> <span class="n">sub</span> <span class="p">(</span><span class="kt">Abs</span> <span class="n">body</span><span class="p">)</span> <span class="o">=</span> <span class="kt">Abs</span> <span class="o">$</span> <span class="n">subst</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="n">sub</span> <span class="n">body</span>
+<span class="n">subst</span> <span class="n">i</span> <span class="n">sub</span> <span class="p">(</span><span class="kt">App</span> <span class="n">rator</span> <span class="n">rand</span><span class="p">)</span> <span class="o">=</span>
+  <span class="kr">let</span> <span class="n">rator'</span> <span class="o">=</span> <span class="n">subst</span> <span class="n">i</span> <span class="n">sub</span> <span class="n">rator</span>
+      <span class="n">rand'</span> <span class="o">=</span> <span class="n">subst</span> <span class="n">i</span> <span class="n">sub</span> <span class="n">rand</span>
+   <span class="kr">in</span> <span class="kt">App</span> <span class="n">rator'</span> <span class="n">rand'</span>
+</code></pre></div></div>
+
+<h2 id="reduction">Reduction</h2>
+
+<p>All of the action in the lambda calculus occurs when abstractions are applied, a
+situation referred to as a <em>beta redex</em>.
+Here’s a <code class="language-plaintext highlighter-rouge">reduce</code> function that recursively scours a lambda term, reducing beta
+redexes:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">-- | Reduce beta redexes in the provided term.</span>
+<span class="n">reduce</span> <span class="o">::</span> <span class="kt">Term</span> <span class="o">-&gt;</span> <span class="kt">Term</span>
+<span class="n">reduce</span> <span class="n">t</span><span class="o">@</span><span class="p">(</span><span class="kt">Var</span> <span class="kr">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">t</span>
+<span class="n">reduce</span> <span class="p">(</span><span class="kt">Abs</span> <span class="n">body</span><span class="p">)</span> <span class="o">=</span> <span class="kt">Abs</span> <span class="p">(</span><span class="n">reduce</span> <span class="n">body</span><span class="p">)</span>
+<span class="n">reduce</span> <span class="p">(</span><span class="kt">App</span> <span class="n">rator</span> <span class="n">rand</span><span class="p">)</span> <span class="o">=</span> <span class="kr">case</span> <span class="n">reduce</span> <span class="n">rator</span> <span class="kr">of</span>
+  <span class="p">(</span><span class="kt">Abs</span> <span class="n">body</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">reduce</span> <span class="o">$</span> <span class="n">subst</span> <span class="mi">0</span> <span class="n">rand</span> <span class="n">body</span>
+  <span class="n">op</span> <span class="o">-&gt;</span> <span class="kt">App</span> <span class="n">op</span> <span class="o">$</span> <span class="n">reduce</span> <span class="n">rand</span>
+</code></pre></div></div>
+
+<p>The only interesting case is the final one, in which we replace a beta redex
+with the appropriate substitution.
+Note that we call <code class="language-plaintext highlighter-rouge">reduce</code> on the result of the substitution, since it might
+have created new redexes to reduce.</p>
+
+<p>Unfortunately it’s incorrect, and for a subtle reason.
+The problem is that we’re stripping off a binder without adjusting the indices
+of bound variables within the <code class="language-plaintext highlighter-rouge">body</code> of the operator abstraction.
+For instance, consider this somewhat contrived term:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">\</span><span class="n">a</span><span class="o">.</span><span class="p">(</span><span class="nf">\</span><span class="n">b</span><span class="o">.</span><span class="p">(</span><span class="n">b</span> <span class="n">a</span><span class="p">)</span> <span class="n">a</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The inner abstraction (<code class="language-plaintext highlighter-rouge">\b.(b a)</code>) can be applied to the variable <code class="language-plaintext highlighter-rouge">a</code>, resulting
+in:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">\</span><span class="n">a</span><span class="o">.</span><span class="p">(</span><span class="n">a</span> <span class="n">a</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>However, <code class="language-plaintext highlighter-rouge">reduce</code> returns a different (and nonsensical) term:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">bad</span> <span class="o">=</span> <span class="n">reduce</span> <span class="o">$</span> <span class="kt">Abs</span> <span class="p">(</span><span class="kt">App</span> <span class="p">(</span><span class="kt">Abs</span> <span class="p">(</span><span class="kt">App</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">0</span><span class="p">)</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">1</span><span class="p">)))</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">0</span><span class="p">))</span>
+<span class="c1">-- Abs (App (Var 0) (Var 1))</span>
+<span class="c1">--                       ^ Should be 0</span>
+</code></pre></div></div>
+
+<p>Luckily the fix is straightforward: after substituting, we need to decrement the
+indices of some bound variables within the result.
+Which bound variables?
+Only those that “point” to binders outside of the current term.</p>
+
+<p>So instead of:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="o">\.</span><span class="n">b</span><span class="p">)</span> <span class="n">t</span> <span class="o">==&gt;</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="o">-&gt;</span><span class="n">t</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>we’ll do:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="o">\.</span><span class="n">b</span><span class="p">)</span> <span class="n">t</span> <span class="o">==&gt;</span> <span class="n">shift</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="o">-&gt;</span><span class="n">t</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>We’ll implement a <code class="language-plaintext highlighter-rouge">shift</code> function in a second that does just this, but before
+we do so we need to think a little bit harder about our fix.
+Naively shifting the result of the substitution will fix the problem we’ve
+identified above, but it also introduces a new bug: it might <em>incorrectly</em>
+downshift indices of bound variables in the <em>operand</em> term.</p>
+
+<p>What we need to do instead is <em>preemptively upshift</em> indices in the operand
+term, perform the substitution, then downshift the indices in the resulting
+term:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="o">\.</span><span class="n">b</span><span class="p">)</span> <span class="n">t</span> <span class="o">==&gt;</span> <span class="n">downshift</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span> <span class="o">-&gt;</span> <span class="n">upshift</span> <span class="n">t</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>A single <code class="language-plaintext highlighter-rouge">shift</code> function can do the work of both <code class="language-plaintext highlighter-rouge">downshift</code> and <code class="language-plaintext highlighter-rouge">upshift</code> so
+long as it’s passed an integer argument indicating how much to shift by:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">-- | Shift the indices of bound variables bound by binders outside of the</span>
+<span class="c1">-- current term by the provided amount.</span>
+<span class="n">shift</span> <span class="o">::</span> <span class="kt">Int</span> <span class="o">-&gt;</span> <span class="kt">Term</span> <span class="o">-&gt;</span> <span class="kt">Term</span>
+<span class="n">shift</span> <span class="n">n</span> <span class="o">=</span> <span class="n">shift'</span> <span class="mi">0</span>
+  <span class="kr">where</span>
+    <span class="c1">-- bc = "binder count"</span>
+    <span class="n">shift'</span> <span class="n">bc</span> <span class="n">t</span><span class="o">@</span><span class="p">(</span><span class="kt">Var</span> <span class="n">i</span><span class="p">)</span>
+      <span class="o">|</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">bc</span> <span class="o">=</span> <span class="kt">Var</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">n</span><span class="p">)</span>
+      <span class="o">|</span> <span class="n">otherwise</span> <span class="o">=</span> <span class="n">t</span>
+    <span class="n">shift'</span> <span class="n">bc</span> <span class="p">(</span><span class="kt">Abs</span> <span class="n">body</span><span class="p">)</span> <span class="o">=</span> <span class="kt">Abs</span> <span class="o">$</span> <span class="n">shift'</span> <span class="p">(</span><span class="n">bc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="n">body</span>
+    <span class="n">shift'</span> <span class="n">bc</span> <span class="p">(</span><span class="kt">App</span> <span class="n">rator</span> <span class="n">rand</span><span class="p">)</span> <span class="o">=</span>
+      <span class="kr">let</span> <span class="n">rator'</span> <span class="o">=</span> <span class="n">shift'</span> <span class="n">bc</span> <span class="n">rator</span>
+          <span class="n">rand'</span> <span class="o">=</span> <span class="n">shift'</span> <span class="n">bc</span> <span class="n">rand</span>
+       <span class="kr">in</span> <span class="kt">App</span> <span class="n">rator'</span> <span class="n">rand'</span>
+</code></pre></div></div>
+
+<p>With <code class="language-plaintext highlighter-rouge">shift</code> in hand, we can correct <code class="language-plaintext highlighter-rouge">reduce</code>:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">reduce</span> <span class="o">::</span> <span class="kt">Term</span> <span class="o">-&gt;</span> <span class="kt">Term</span>
+<span class="c1">-- ...</span>
+<span class="n">reduce</span> <span class="p">(</span><span class="kt">App</span> <span class="n">rator</span> <span class="n">rand</span><span class="p">)</span> <span class="o">=</span> <span class="kr">case</span> <span class="n">reduce</span> <span class="n">rator</span> <span class="kr">of</span>
+  <span class="p">(</span><span class="kt">Abs</span> <span class="n">body</span><span class="p">)</span> <span class="o">-&gt;</span>
+    <span class="kr">let</span> <span class="n">arg</span> <span class="o">=</span> <span class="n">shift</span> <span class="mi">1</span> <span class="n">rand</span>
+        <span class="n">subbed</span> <span class="o">=</span> <span class="n">subst</span> <span class="mi">0</span> <span class="n">arg</span> <span class="n">body</span>
+     <span class="kr">in</span> <span class="n">reduce</span> <span class="o">$</span> <span class="n">shift</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="n">subbed</span>
+  <span class="n">op</span> <span class="o">-&gt;</span> <span class="kt">App</span> <span class="n">op</span> <span class="o">$</span> <span class="n">reduce</span> <span class="n">rand</span>
+</code></pre></div></div>
+
+<p>And the indexing problem is fixed!</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">bad</span> <span class="o">=</span> <span class="n">reduce</span> <span class="o">$</span> <span class="kt">Abs</span> <span class="p">(</span><span class="kt">App</span> <span class="p">(</span><span class="kt">Abs</span> <span class="p">(</span><span class="kt">App</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">0</span><span class="p">)</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">1</span><span class="p">)))</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">0</span><span class="p">))</span>
+<span class="c1">-- Abs (App (Var 0) (Var 0))</span>
+<span class="c1">--                       ^ Looks good!</span>
+</code></pre></div></div>
+
+<p>There’s actually <em>another</em> lingering bug related to incorrect indices that’s not
+addressed by our changes.
+Specifically, <code class="language-plaintext highlighter-rouge">subst</code> needs to also keep track of how many binders have been
+crossed, and shift the substituted expression accordingly:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">subst</span> <span class="o">::</span> <span class="kt">Int</span> <span class="o">-&gt;</span> <span class="kt">Term</span> <span class="o">-&gt;</span> <span class="kt">Term</span> <span class="o">-&gt;</span> <span class="kt">Term</span>
+<span class="n">subst</span> <span class="n">i</span> <span class="n">sub</span> <span class="o">=</span> <span class="n">subst'</span> <span class="mi">0</span>
+  <span class="kr">where</span>
+    <span class="n">subst'</span> <span class="n">bc</span> <span class="n">t</span><span class="o">@</span><span class="p">(</span><span class="kt">Var</span> <span class="n">j</span><span class="p">)</span>
+      <span class="o">|</span> <span class="n">i</span> <span class="o">+</span> <span class="n">bc</span> <span class="o">==</span> <span class="n">j</span> <span class="o">=</span> <span class="n">shift</span> <span class="n">bc</span> <span class="n">sub</span>
+      <span class="o">|</span> <span class="n">otherwise</span> <span class="o">=</span> <span class="n">t</span>
+    <span class="n">subst'</span> <span class="n">bc</span> <span class="p">(</span><span class="kt">Abs</span> <span class="n">body</span><span class="p">)</span> <span class="o">=</span> <span class="kt">Abs</span> <span class="o">$</span> <span class="n">subst'</span> <span class="p">(</span><span class="n">bc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="n">body</span>
+    <span class="n">subst'</span> <span class="n">bc</span> <span class="p">(</span><span class="kt">App</span> <span class="n">rator</span> <span class="n">rand</span><span class="p">)</span> <span class="o">=</span>
+      <span class="kr">let</span> <span class="n">rator'</span> <span class="o">=</span> <span class="n">subst'</span> <span class="n">bc</span> <span class="n">rator</span>
+          <span class="n">rand'</span> <span class="o">=</span> <span class="n">subst'</span> <span class="n">bc</span> <span class="n">rand</span>
+       <span class="kr">in</span> <span class="kt">App</span> <span class="n">rator'</span> <span class="n">rand'</span>
+</code></pre></div></div>
+
+<h2 id="a-stronger-encoding">A Stronger Encoding</h2>
+
+<p>As it stands, <code class="language-plaintext highlighter-rouge">reduce</code> makes a fairly weak claim:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">reduce</span> <span class="o">::</span> <span class="kt">Term</span> <span class="o">-&gt;</span> <span class="kt">Term</span>
+</code></pre></div></div>
+
+<p>namely, that it transforms a term into another term.
+This admits, among other things, the following incorrect definition:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">reduce</span> <span class="o">=</span> <span class="n">id</span>
+</code></pre></div></div>
+
+<p>We can do better.</p>
+
+<p>Specifically, reducing a term produces another term in which <em>no beta redexes
+occur</em>, and this is the kind of thing we can express in a datatype:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">data</span> <span class="kt">ReducedTerm</span>
+  <span class="o">=</span> <span class="kt">ReducedAbs</span> <span class="kt">ReducedTerm</span>
+  <span class="o">|</span> <span class="kt">Stuck</span> <span class="kt">StuckTerm</span>
+  <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Show</span><span class="p">)</span>
+
+<span class="kr">data</span> <span class="kt">StuckTerm</span>
+  <span class="o">=</span> <span class="kt">StuckVar</span> <span class="kt">Int</span>
+  <span class="o">|</span> <span class="kt">StuckApp</span> <span class="kt">StuckTerm</span> <span class="kt">ReducedTerm</span>
+  <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Show</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The key observation is that it’s not possible to concoct a <code class="language-plaintext highlighter-rouge">ReducedTerm</code>
+containing a beta redex, since any term in the operator position of an
+application is “stuck” (either a variable, or an application that is itself
+stuck).
+Of course, every <code class="language-plaintext highlighter-rouge">ReducedTerm</code> is equivalent to some “regular” <code class="language-plaintext highlighter-rouge">Term</code>:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">-- | Convert a reduced term to a term (the reduced terms are "embedded" in the</span>
+<span class="c1">-- set of terms).</span>
+<span class="n">toTerm</span> <span class="o">::</span> <span class="kt">ReducedTerm</span> <span class="o">-&gt;</span> <span class="kt">Term</span>
+<span class="n">toTerm</span> <span class="p">(</span><span class="kt">ReducedAbs</span> <span class="n">body</span><span class="p">)</span> <span class="o">=</span> <span class="kt">Abs</span> <span class="o">$</span> <span class="n">toTerm</span> <span class="n">body</span>
+<span class="n">toTerm</span> <span class="p">(</span><span class="kt">Stuck</span> <span class="n">s</span><span class="p">)</span> <span class="o">=</span> <span class="n">unStuck</span> <span class="n">s</span>
+  <span class="kr">where</span>
+    <span class="n">unStuck</span> <span class="p">(</span><span class="kt">StuckVar</span> <span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="kt">Var</span> <span class="n">i</span>
+    <span class="n">unStuck</span> <span class="p">(</span><span class="kt">StuckApp</span> <span class="n">rator</span> <span class="n">rand</span><span class="p">)</span> <span class="o">=</span>
+      <span class="kr">let</span> <span class="n">rator'</span> <span class="o">=</span> <span class="n">unStuck</span> <span class="n">rator</span>
+          <span class="n">rand'</span> <span class="o">=</span> <span class="n">toTerm</span> <span class="n">rand</span>
+       <span class="kr">in</span> <span class="kt">App</span> <span class="n">rator'</span> <span class="n">rand'</span>
+</code></pre></div></div>
+
+<p>With <code class="language-plaintext highlighter-rouge">ReducedTerm</code> in hand, we can sharpen the type of <code class="language-plaintext highlighter-rouge">reduce</code>:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">reduce</span> <span class="o">::</span> <span class="kt">Term</span> <span class="o">-&gt;</span> <span class="kt">ReducedTerm</span>
+<span class="n">reduce</span> <span class="p">(</span><span class="kt">Var</span> <span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="kt">Stuck</span> <span class="o">$</span> <span class="kt">StuckVar</span> <span class="n">i</span>
+<span class="n">reduce</span> <span class="p">(</span><span class="kt">Abs</span> <span class="n">body</span><span class="p">)</span> <span class="o">=</span> <span class="kt">ReducedAbs</span> <span class="o">$</span> <span class="n">reduce</span> <span class="n">body</span>
+<span class="n">reduce</span> <span class="p">(</span><span class="kt">App</span> <span class="n">rator</span> <span class="n">rand</span><span class="p">)</span> <span class="o">=</span> <span class="kr">case</span> <span class="n">reduce</span> <span class="n">rator</span> <span class="kr">of</span>
+  <span class="p">(</span><span class="kt">ReducedAbs</span> <span class="n">body</span><span class="p">)</span> <span class="o">-&gt;</span>
+    <span class="kr">let</span> <span class="n">arg</span> <span class="o">=</span> <span class="n">shift</span> <span class="mi">1</span> <span class="n">rand</span>
+        <span class="n">subbed</span> <span class="o">=</span> <span class="n">subst</span> <span class="mi">0</span> <span class="n">arg</span> <span class="p">(</span><span class="n">toTerm</span> <span class="n">body</span><span class="p">)</span>
+     <span class="kr">in</span> <span class="n">reduce</span> <span class="o">$</span> <span class="n">shift</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="n">subbed</span>
+  <span class="p">(</span><span class="kt">Stuck</span> <span class="n">op</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Stuck</span> <span class="o">$</span> <span class="kt">StuckApp</span> <span class="n">op</span> <span class="o">$</span> <span class="n">reduce</span> <span class="n">rand</span>
+</code></pre></div></div>
+
+<h2 id="a-few-examples">A Few Examples</h2>
+
+<p>We end this post with a few classics examples.
+First, the successor of the successor of the successor of zero is three:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">suc</span> <span class="o">=</span> <span class="kt">Abs</span> <span class="o">$</span> <span class="kt">Abs</span> <span class="o">$</span> <span class="kt">Abs</span> <span class="o">$</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="kt">App</span> <span class="p">(</span><span class="kt">App</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">2</span><span class="p">)</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">1</span><span class="p">))</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">0</span><span class="p">))</span>
+
+<span class="n">zero</span> <span class="o">=</span> <span class="kt">Abs</span> <span class="o">$</span> <span class="kt">Abs</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="n">three</span> <span class="o">=</span> <span class="kt">App</span> <span class="n">suc</span> <span class="o">$</span> <span class="kt">App</span> <span class="n">suc</span> <span class="o">$</span> <span class="kt">App</span> <span class="n">suc</span> <span class="n">zero</span>
+
+<span class="n">toTerm</span> <span class="o">$</span> <span class="n">reduce</span> <span class="n">three</span>
+<span class="c1">-- Abs (Abs (App (Var 1) (App (Var 1) (App (Var 1) (Var 0)))))</span>
+</code></pre></div></div>
+
+<p><em>De Bruijn indices are really a pain to work with by hand…</em></p>
+
+<p>We can also construct pairs and project their components:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cons</span> <span class="o">=</span> <span class="kt">Abs</span> <span class="o">$</span> <span class="kt">Abs</span> <span class="o">$</span> <span class="kt">Abs</span> <span class="o">$</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">App</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">0</span><span class="p">)</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">2</span><span class="p">))</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">fst'</span> <span class="o">=</span> <span class="kt">Abs</span> <span class="o">$</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">0</span><span class="p">)</span> <span class="p">(</span><span class="kt">Abs</span> <span class="o">$</span> <span class="kt">Abs</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="n">snd'</span> <span class="o">=</span> <span class="kt">Abs</span> <span class="o">$</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">0</span><span class="p">)</span> <span class="p">(</span><span class="kt">Abs</span> <span class="o">$</span> <span class="kt">Abs</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">0</span><span class="p">))</span>
+
+<span class="n">pair</span> <span class="o">=</span> <span class="kt">App</span> <span class="p">(</span><span class="kt">App</span> <span class="n">cons</span> <span class="n">zero</span><span class="p">)</span> <span class="n">three</span>
+
+<span class="n">toTerm</span> <span class="o">$</span> <span class="n">reduce</span> <span class="o">$</span> <span class="kt">App</span> <span class="n">fst'</span> <span class="n">pair</span>
+<span class="c1">-- Abs (Abs (Var 0))</span>
+
+<span class="n">toTerm</span> <span class="o">$</span> <span class="n">reduce</span> <span class="o">$</span> <span class="kt">App</span> <span class="n">snd'</span> <span class="n">pair</span>
+<span class="c1">-- Abs (Abs (App (Var 1) (App (Var 1) (App (Var 1) (Var 0)))))</span>
+</code></pre></div></div>
+
+<p>(I’ve applied <code class="language-plaintext highlighter-rouge">toTerm</code> to the output of <code class="language-plaintext highlighter-rouge">reduce</code> to make the results a little
+easier to read.)</p>
+
+<p>Finally, we should check that the infamous <em>Omega combinator</em> can’t be
+normalized:</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">omega</span> <span class="o">=</span> <span class="kt">Abs</span> <span class="p">(</span><span class="kt">App</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">0</span><span class="p">)</span> <span class="p">(</span><span class="kt">Var</span> <span class="mi">0</span><span class="p">))</span>
+<span class="n">reduce</span> <span class="o">$</span> <span class="kt">App</span> <span class="n">omega</span> <span class="n">omega</span>
+<span class="c1">-- waiting...</span>
+<span class="c1">-- ...</span>
+<span class="c1">-- ...</span>
+<span class="c1">-- Ctrl^C</span>
+</code></pre></div></div>
+
+<p>Well that’s enough fun for now.
+In future posts we’ll see how to extend this system along a number of different
+dimensions.</p>
+
+</main>
+
+      <footer></footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,78 @@
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background-color: #f7f4e3;
+}
+
+#content {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+header {
+  margin: 40px 0 20px;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#sonobe {
+  height: 32px;
+}
+
+footer {
+  height: 50vh;
+}
+
+p {
+  line-height: 1.45em;
+}
+
+html {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+}
+
+code {
+  font-family: 'Source Code Pro', Consolas, 'Ubuntu Mono', Menlo,
+    'DejaVu Sans Mono', monospace, monospace !important;
+  font-size: 0.9em;
+  background-color: #f1ecd2;
+}
+
+pre {
+  overflow-x: auto;
+  background-color: #f1ecd2;
+}
+
+pre code {
+  display: block;
+  padding: 0.5em;
+}
+
+blockquote {
+  margin: 2em;
+}
+
+.posts {
+  line-height: 1.5;
+}
+
+.posts > li > a {
+  margin-right: 8px;
+}
+
+.tag {
+  font-size: 0.8em;
+  padding: 0 4px;
+  background-color: #f1eac2;
+  color: #333;
+}

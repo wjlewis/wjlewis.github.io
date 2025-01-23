@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>LEM Ain't False</title>
+    <link rel="stylesheet" href="/assets/fonts/fonts.css" />
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="/assets/css/syntax.css" />
+    
+  </head>
+
+  <body>
+    <div id="content">
+      <header>
+        <nav>
+          <a href="/">
+            <img
+              id="sonobe"
+              src="/assets/images/sonobe.svg"
+              alt="A sonobe module"
+            />
+          </a>
+
+          <a href="/about">About</a>
+        </nav>
+      </header>
+
+      <main><h1>LEM Ain't False</h1>
+
+<p>Whether or not the <em>Law of the Excluded Middle</em> is true is the subject of much
+debate.
+But we know for sure that it’s not false.
+Let’s see how to prove this in LEAN.</p>
+
+<p>First, the statement of the result:</p>
+
+<div class="language-lean highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">/</span><span class="cd">-- The Law of the Excluded Middle isn't false. -/</span>
+<span class="k">theorem</span> <span class="n">em_not_false</span> : <span class="o">¬¬</span>(<span class="n">p</span> <span class="o">∨</span> <span class="o">¬</span><span class="n">p</span>) :=
+  <span class="n">sorry</span>
+</code></pre></div></div>
+
+<p>That is: <em>it’s not the case that the Law of the Excluded Middle is false</em>.</p>
+
+<p>In Lean (and elsewhere), <code class="language-plaintext highlighter-rouge">¬p</code> is just an abbreviation for the type <code class="language-plaintext highlighter-rouge">p → False</code>,
+which means that <code class="language-plaintext highlighter-rouge">em_not_false</code> is a function:</p>
+
+<div class="language-lean highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">theorem</span> <span class="n">em_not_false</span> : <span class="o">¬¬</span>(<span class="n">p</span> <span class="o">∨</span> <span class="o">¬</span><span class="n">p</span>) :=
+  <span class="k">fun</span> (<span class="n">hNotEm</span> : <span class="o">¬</span>(<span class="n">p</span> <span class="o">∨</span> <span class="o">¬</span><span class="n">p</span>)) <span class="o">=&gt;</span>
+    <span class="n">sorry</span>
+</code></pre></div></div>
+
+<p>That is, it’s a function that transforms a <em>hypothesis</em> that EM <em>is</em> <code class="language-plaintext highlighter-rouge">False</code>
+into a proof of <code class="language-plaintext highlighter-rouge">False</code>.
+According to the Curry-Howard Isomorphism, <code class="language-plaintext highlighter-rouge">fun (h : p) =&gt; ...</code> can be
+interpreted as <em>Supposing <code class="language-plaintext highlighter-rouge">p</code> is <code class="language-plaintext highlighter-rouge">True</code>, <code class="language-plaintext highlighter-rouge">...</code></em>.
+So we’re supposing that EM isn’t <code class="language-plaintext highlighter-rouge">True</code>, and in this hypothetical context we
+need to derive a proof of <code class="language-plaintext highlighter-rouge">False</code>.</p>
+
+<p>But before we finish the proof of <code class="language-plaintext highlighter-rouge">em_not_false</code>, we should observe that it’s
+<em>obviously</em> true.
+And by this I mean that if <code class="language-plaintext highlighter-rouge">em</code> <em>were</em> <code class="language-plaintext highlighter-rouge">False</code>, our whole theorem-proving
+edifice would crumble.
+To see why, let’s add <code class="language-plaintext highlighter-rouge">em_false</code> as an axiom:</p>
+
+<div class="language-lean highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">axiom</span> <span class="n">em_false</span> (<span class="n">p</span>: <span class="kt">Prop</span>) : <span class="o">¬</span>(<span class="n">p</span> <span class="o">∨</span> <span class="o">¬</span><span class="n">p</span>)
+</code></pre></div></div>
+
+<p>What <code class="language-plaintext highlighter-rouge">em_false</code> says is:</p>
+
+<blockquote>
+  <p>For <em>any</em> proposition <code class="language-plaintext highlighter-rouge">p</code>, given either a proof of <code class="language-plaintext highlighter-rouge">p</code> or a proof of <code class="language-plaintext highlighter-rouge">¬p</code>,
+I’ll give you a proof of <code class="language-plaintext highlighter-rouge">False</code>.</p>
+</blockquote>
+
+<p>Let’s try it out with the simplest proposition of all:</p>
+
+<div class="language-lean highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">/</span><span class="cd">--  A proof of `False` using `em_false` and a proof of `True`. -/</span>
+<span class="k">theorem</span> <span class="n">false_from_true</span> : <span class="n">False</span> :=
+  <span class="n">em_false</span> <span class="n">True</span> (<span class="n">Or</span><span class="o">.</span><span class="n">inl</span> <span class="n">trivial</span>)
+</code></pre></div></div>
+
+<p>And with that the jig is up: if we can prove <code class="language-plaintext highlighter-rouge">False</code>, we can prove <em>anything at
+all</em>, a property captured by the elimination principle for <code class="language-plaintext highlighter-rouge">False</code>:</p>
+
+<div class="language-lean highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">#check</span> <span class="n">False</span><span class="o">.</span><span class="n">elim</span><span class="cd">
+-- {C : Sort u} → False → C</span>
+</code></pre></div></div>
+
+<p>Using <code class="language-plaintext highlighter-rouge">false_from_true</code> and <code class="language-plaintext highlighter-rouge">False.elim</code> we can prove that 1 is equal to 2:</p>
+
+<div class="language-lean highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">theorem</span> <span class="n">one_eq_two</span> : <span class="mi">1</span> <span class="o">=</span> <span class="mi">2</span> := <span class="n">False</span><span class="o">.</span><span class="n">elim</span> <span class="n">false_from_true</span>
+</code></pre></div></div>
+
+<p>That every natural number is equal to 0:</p>
+
+<div class="language-lean highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">theorem</span> <span class="n">all_zero</span> : <span class="o">∀</span> <span class="n">n</span> : <span class="n">Nat</span>, <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span> := <span class="n">False</span><span class="o">.</span><span class="n">elim</span> <span class="n">false_from_true</span>
+</code></pre></div></div>
+
+<p>Along with anything else under the sun.</p>
+
+<h2 id="finishing-the-proof">Finishing the Proof</h2>
+
+<p>So having a proof that <code class="language-plaintext highlighter-rouge">em</code> is <code class="language-plaintext highlighter-rouge">False</code> amounts to having a tool of incredible
+power.
+And that’s exactly what <code class="language-plaintext highlighter-rouge">hNotEm</code> is in our incomplete proof of <code class="language-plaintext highlighter-rouge">em_not_false</code>.
+Unforunately it’s not as simple as our proof of <code class="language-plaintext highlighter-rouge">false_from_true</code>, since we can
+only use <code class="language-plaintext highlighter-rouge">hNotEm</code> with the parameterized <code class="language-plaintext highlighter-rouge">p</code> proposition.
+But it’s not too much more work.</p>
+
+<p>The trick is to use <code class="language-plaintext highlighter-rouge">hNotEm</code> to construct proofs of both <code class="language-plaintext highlighter-rouge">¬p</code> and <code class="language-plaintext highlighter-rouge">¬¬p</code>.
+Once we have these, we can construct a proof of <code class="language-plaintext highlighter-rouge">False</code> using <code class="language-plaintext highlighter-rouge">absurd</code>.
+<code class="language-plaintext highlighter-rouge">absurd</code> implements the <em>Principle of Explosion</em>, also known as “ex falso
+quodlibet” (“from a contradiction, anything follows”):</p>
+
+<div class="language-lean highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">#check</span> <span class="n">absurd</span><span class="cd">
+-- {a : Prop} → {b : Sort v} → a → ¬a → b</span>
+</code></pre></div></div>
+
+<p>To see if the general arc of the proof works, we can temporarily strong-arm Lean
+using <code class="language-plaintext highlighter-rouge">sorry</code>:</p>
+
+<div class="language-lean highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">theorem</span> <span class="n">em_not_false</span> : <span class="o">¬¬</span>(<span class="n">p</span> <span class="o">∨</span> <span class="o">¬</span><span class="n">p</span>) :=
+  <span class="k">fun</span> (<span class="n">hNotEm</span> : <span class="o">¬</span>(<span class="n">p</span> <span class="o">∨</span> <span class="o">¬</span><span class="n">p</span>)) <span class="o">=&gt;</span>
+    <span class="n">let</span> <span class="n">hNotP</span> : <span class="o">¬</span><span class="n">p</span> := <span class="n">sorry</span>
+    <span class="n">let</span> <span class="n">hNotNotP</span> : <span class="o">¬¬</span><span class="n">p</span> := <span class="n">sorry</span>
+    <span class="n">absurd</span> <span class="n">hNotP</span> <span class="n">hNotNotP</span>
+</code></pre></div></div>
+
+<p>And now it’s simply a matter of proving <code class="language-plaintext highlighter-rouge">hNotP</code> and <code class="language-plaintext highlighter-rouge">hNotNotP</code>.
+Writing out the type of <code class="language-plaintext highlighter-rouge">hNotEm</code> as a function gives a clue to how we might do
+this:</p>
+
+<div class="language-lean highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">hNotEm</span> : (<span class="n">p</span> <span class="o">∨</span> <span class="o">¬</span><span class="n">p</span>) <span class="o">→</span> <span class="n">False</span>
+</code></pre></div></div>
+
+<p>This says:</p>
+
+<blockquote>
+  <p>Given either a proof of <code class="language-plaintext highlighter-rouge">p</code> or a proof of <code class="language-plaintext highlighter-rouge">¬p</code>, I’ll give you a proof of
+<code class="language-plaintext highlighter-rouge">False</code>.</p>
+</blockquote>
+
+<p>At this point we seem stuck.
+We don’t <em>have</em> a proof of <code class="language-plaintext highlighter-rouge">p</code> or <code class="language-plaintext highlighter-rouge">¬p</code>.
+But the trick is to use <code class="language-plaintext highlighter-rouge">hNotEm</code> inside another “hypothetical”.
+Specifically, here’s a proof of <code class="language-plaintext highlighter-rouge">¬p</code> using <code class="language-plaintext highlighter-rouge">hNotEm</code>:</p>
+
+<div class="language-lean highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">hNotP</span> : <span class="o">¬</span><span class="n">p</span> := <span class="k">fun</span> (<span class="n">h</span> : <span class="n">p</span>) <span class="o">=&gt;</span> <span class="n">hNotEm</span> (<span class="n">Or</span><span class="o">.</span><span class="n">inl</span> <span class="n">h</span>)
+</code></pre></div></div>
+
+<p>We can prove <code class="language-plaintext highlighter-rouge">hNotNotP</code> with the same trick:</p>
+
+<div class="language-lean highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">hNotNotP</span> : <span class="o">¬¬</span><span class="n">p</span> := <span class="k">fun</span> (<span class="n">h</span> : <span class="o">¬</span><span class="n">p</span>) <span class="o">=&gt;</span> <span class="n">hNotEm</span> (<span class="n">Or</span><span class="o">.</span><span class="n">inr</span> <span class="n">h</span>)
+</code></pre></div></div>
+
+<p>And that completes the proof:</p>
+
+<div class="language-lean highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">theorem</span> <span class="n">em_not_false</span> : <span class="o">¬¬</span>(<span class="n">p</span> <span class="o">∨</span> <span class="o">¬</span><span class="n">p</span>) :=
+  <span class="k">fun</span> (<span class="n">hNotEm</span> : <span class="o">¬</span>(<span class="n">p</span> <span class="o">∨</span> <span class="o">¬</span><span class="n">p</span>)) <span class="o">=&gt;</span>
+    <span class="n">let</span> <span class="n">hNotP</span> : <span class="o">¬</span><span class="n">p</span> := <span class="k">fun</span> (<span class="n">h</span> : <span class="n">p</span>) <span class="o">=&gt;</span> <span class="n">hNotEm</span> (<span class="n">Or</span><span class="o">.</span><span class="n">inl</span> <span class="n">h</span>)
+    <span class="n">let</span> <span class="n">hNotNotP</span> : <span class="o">¬¬</span><span class="n">p</span> := <span class="k">fun</span> (<span class="n">h</span> : <span class="o">¬</span><span class="n">p</span>) <span class="o">=&gt;</span> <span class="n">hNotEm</span> (<span class="n">Or</span><span class="o">.</span><span class="n">inr</span> <span class="n">h</span>)
+    <span class="n">absurd</span> <span class="n">hNotP</span> <span class="n">hNotNotP</span>
+</code></pre></div></div>
+
+<h2 id="notes">Notes</h2>
+
+<p>In Lean, <code class="language-plaintext highlighter-rouge">em</code> is actually a <em>theorem</em>, not an axiom.
+It’s proven using the <a href="https://en.wikipedia.org/wiki/Axiom_of_choice">axiom of choice</a>,
+a result known as
+<a href="https://en.wikipedia.org/wiki/Diaconescu%27s_theorem">Diaconescu’s theorem</a>.
+The axiom of choice <em>is</em> an axiom in Lean.</p>
+
+</main>
+
+      <footer></footer>
+    </div>
+  </body>
+</html>

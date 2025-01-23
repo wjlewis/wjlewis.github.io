@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Teaching My Machine to Play Tic-Tac-Toe</title>
+    <link rel="stylesheet" href="/assets/fonts/fonts.css" />
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="/assets/css/syntax.css" />
+    
+  </head>
+
+  <body>
+    <div id="content">
+      <header>
+        <nav>
+          <a href="/">
+            <img
+              id="sonobe"
+              src="/assets/images/sonobe.svg"
+              alt="A sonobe module"
+            />
+          </a>
+
+          <a href="/about">About</a>
+        </nav>
+      </header>
+
+      <main><h1>Teaching My Machine to Play Tic-Tac-Toe</h1>
+
+<p>I spent the last few mornings writing a <a href="https://github.com/wjlewis/tic-tac-toe">program</a>
+that plays an optimal game of Tic-Tac-Toe:</p>
+
+<p><img src="/assets/images/tic-tac-toe.gif" alt="Playing tic-tac-toe against my computer" /></p>
+
+<p>I anticipated it would take me an hour to get something working, and another
+hour or two to polish it.
+As usual, I was off by a factor of 2 or 3 here.</p>
+
+<p>What ended up being trickier than I anticipated was how to calculate an optimal
+move for the machine.
+I’m still not positive I’ve got it correct.
+Here’s the relevant bit of code that performs this calculation:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="nf">optimal_move_and_outcome</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">,</span> <span class="n">mark</span><span class="p">:</span> <span class="n">Mark</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="p">(</span><span class="n">Board</span><span class="p">,</span> <span class="n">Outcome</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">match</span> <span class="k">self</span><span class="nf">.check_outcome</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nf">Some</span><span class="p">(</span><span class="n">outcome</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">(</span><span class="k">self</span><span class="nf">.clone</span><span class="p">(),</span> <span class="n">outcome</span><span class="p">),</span>
+        <span class="nb">None</span> <span class="k">=&gt;</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="k">mut</span> <span class="n">futures</span> <span class="o">=</span> <span class="k">self</span>
+                <span class="nf">.moves_for</span><span class="p">(</span><span class="n">mark</span><span class="p">)</span>
+                <span class="nf">.map</span><span class="p">(|</span><span class="n">board</span><span class="p">|</span> <span class="p">{</span>
+                    <span class="k">let</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span> <span class="o">=</span> <span class="n">board</span><span class="nf">.optimal_move_and_outcome</span><span class="p">(</span><span class="n">mark</span><span class="nf">.opposite</span><span class="p">());</span>
+                    <span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span>
+                <span class="p">})</span>
+                <span class="py">.collect</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="p">(</span><span class="n">Board</span><span class="p">,</span> <span class="n">Outcome</span><span class="p">)</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+
+            <span class="n">futures</span><span class="nf">.sort_by</span><span class="p">(|(</span><span class="n">_</span><span class="p">,</span> <span class="n">o1</span><span class="p">),</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">o2</span><span class="p">)|</span> <span class="n">mark</span><span class="nf">.better</span><span class="p">(</span><span class="o">*</span><span class="n">o1</span><span class="p">,</span> <span class="o">*</span><span class="n">o2</span><span class="p">));</span>
+            <span class="n">futures</span><span class="nf">.pop</span><span class="p">()</span><span class="nf">.expect</span><span class="p">(</span><span class="s">"failed to consider any moves"</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">optimal_move_and_outcome</code> is a recursive function traverses the <em>game tree</em>
+depth-first.
+For each possible future tic-tac-toe board, it asks:</p>
+
+<ul>
+  <li>Does this board constitute a completed game?
+If so, the result is the board and the <em>outcome</em> (either a win for X, a win
+for O, or a draw).</li>
+  <li>If the game isn’t over, consider all possible moves that the <em>other</em> player
+could make (along with their outcomes).
+Order them according to what’s better for the <em>other</em> player, and pick the
+best one from their point of view.</li>
+</ul>
+
+<p>So <code class="language-plaintext highlighter-rouge">optimal_move_and_outcome</code> calculates a next move along with an outcome.
+These satisfy the following guarantee: if <em>both</em> players make optimal moves
+hereafter, then making the move described by the board I returned will result in
+the outcome I returned.</p>
+
+<p>This is all assuming the (human) opponent plays optimally, though.
+What I’m still trying to figure out is this: is it possible for the other player
+to make a <em>suboptimal</em> move in the future in such a way that the outcome
+returned by <code class="language-plaintext highlighter-rouge">optimal_move_and_outcome</code> is no longer guaranteed?</p>
+
+<p>And I’m <em>almost</em> positive this isn’t the case.
+That is, there’s a kind of “monotonic” quality to <code class="language-plaintext highlighter-rouge">optimal_move_and_outcome</code>
+that says, “if you make the move represented by this board, you’re guaranteed an
+outcome <em>at least as good</em> as the one I returned; if your opponent plays
+suboptimally at some point, you could do even better, but you’ll never do
+worse.”
+That’s because <code class="language-plaintext highlighter-rouge">optimal_move_and_outcome</code> is considering <em>every</em> possible future
+sequence of moves: so the notion of a “locally suboptimal but globally optimal”
+move isn’t quite coherent.</p>
+
+<p>This feels like the kind of result that shouldn’t be too difficult to prove by
+induction.
+At some point I should try formalizing it in Lean.</p>
+
+<h2 id="final-thoughts">Final Thoughts</h2>
+
+<p>Despite playing around with Rust on and off for the last several years, this was
+my first “real” Rust program.
+And the language really shined.
+The availability of basic traits like <code class="language-plaintext highlighter-rouge">Display</code> and <code class="language-plaintext highlighter-rouge">Default</code> resulted in really
+simple code for rendering and initializing the components of the game; sum types
+(via <code class="language-plaintext highlighter-rouge">enum</code>) were the right fit for representing marks and game outcomes; the
+fact that I/O functions return <code class="language-plaintext highlighter-rouge">Result</code>s instead of setting an out-of-band error
+code greatly simplified the terminal interactions; the ease with which I could
+define a custom <code class="language-plaintext highlighter-rouge">Ordering</code> on a type, and use it to sort a <code class="language-plaintext highlighter-rouge">Vec</code> of its
+inhabitants made the minimax calculation straightforward; and much more besides.</p>
+
+<p>But I’m probably most proud of my decision to iterate over all possible
+3-in-a-row “lines” using a custom <code class="language-plaintext highlighter-rouge">Iterator</code>:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">LineIter</span><span class="o">&lt;</span><span class="nv">'a</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="n">board</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'a</span> <span class="n">Board</span><span class="p">,</span>
+    <span class="n">idx</span><span class="p">:</span> <span class="nb">usize</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1">// A representation of a line of grid spaces on a board.</span>
+<span class="k">struct</span> <span class="nf">Line</span><span class="p">([</span><span class="nb">Option</span><span class="o">&lt;</span><span class="n">Mark</span><span class="o">&gt;</span><span class="p">;</span> <span class="mi">3</span><span class="p">]);</span>
+
+<span class="k">impl</span><span class="o">&lt;</span><span class="nv">'a</span><span class="o">&gt;</span> <span class="nb">Iterator</span> <span class="k">for</span> <span class="n">LineIter</span><span class="o">&lt;</span><span class="nv">'a</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">type</span> <span class="n">Item</span> <span class="o">=</span> <span class="n">Line</span><span class="p">;</span>
+
+    <span class="k">fn</span> <span class="nf">next</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">Line</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">line</span> <span class="o">=</span> <span class="k">match</span> <span class="k">self</span><span class="py">.idx</span> <span class="p">{</span>
+            <span class="mi">0</span> <span class="k">=&gt;</span> <span class="nf">Some</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]),</span>
+            <span class="mi">1</span> <span class="k">=&gt;</span> <span class="nf">Some</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]),</span>
+            <span class="mi">2</span> <span class="k">=&gt;</span> <span class="nf">Some</span><span class="p">([</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">]),</span>
+            <span class="mi">3</span> <span class="k">=&gt;</span> <span class="nf">Some</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">]),</span>
+            <span class="mi">4</span> <span class="k">=&gt;</span> <span class="nf">Some</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">7</span><span class="p">]),</span>
+            <span class="mi">5</span> <span class="k">=&gt;</span> <span class="nf">Some</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">]),</span>
+            <span class="mi">6</span> <span class="k">=&gt;</span> <span class="nf">Some</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">]),</span>
+            <span class="mi">7</span> <span class="k">=&gt;</span> <span class="nf">Some</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">]),</span>
+            <span class="n">_</span> <span class="k">=&gt;</span> <span class="nb">None</span><span class="p">,</span>
+        <span class="p">};</span>
+
+        <span class="k">if</span> <span class="k">self</span><span class="py">.idx</span> <span class="o">&lt;</span> <span class="mi">8</span> <span class="p">{</span>
+            <span class="k">self</span><span class="py">.idx</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="p">}</span>
+
+        <span class="n">line</span><span class="nf">.map</span><span class="p">(|</span><span class="n">coords</span><span class="p">|</span> <span class="nf">Line</span><span class="p">(</span><span class="n">coords</span><span class="nf">.map</span><span class="p">(|</span><span class="n">i</span><span class="p">|</span> <span class="k">self</span><span class="py">.board</span><span class="na">.0</span><span class="p">[</span><span class="n">i</span><span class="p">])))</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This is used when checking if a board represents a completed game, a calculation
+that requires looking at every row, every column, and the two diagonals on a
+board.
+With <code class="language-plaintext highlighter-rouge">LineIter</code>, we can just write something like this:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// Check if this board contains a winning "line" or marks, or represents a</span>
+<span class="cd">/// draw (in the event that no more marks can be placed).</span>
+<span class="k">pub</span> <span class="k">fn</span> <span class="nf">check_outcome</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">Outcome</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="k">in</span> <span class="k">self</span><span class="nf">.lines</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">x_line</span> <span class="o">=</span> <span class="n">line</span><span class="na">.0</span><span class="nf">.iter</span><span class="p">()</span><span class="nf">.all</span><span class="p">(|</span><span class="n">cell</span><span class="p">|</span> <span class="o">*</span><span class="n">cell</span> <span class="o">==</span> <span class="nf">Some</span><span class="p">(</span><span class="nn">Mark</span><span class="p">::</span><span class="n">X</span><span class="p">));</span>
+        <span class="k">if</span> <span class="n">x_line</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nf">Some</span><span class="p">(</span><span class="nn">Outcome</span><span class="p">::</span><span class="nf">Win</span><span class="p">(</span><span class="nn">Mark</span><span class="p">::</span><span class="n">X</span><span class="p">));</span>
+        <span class="p">}</span>
+
+        <span class="k">let</span> <span class="n">o_line</span> <span class="o">=</span> <span class="n">line</span><span class="na">.0</span><span class="nf">.iter</span><span class="p">()</span><span class="nf">.all</span><span class="p">(|</span><span class="n">cell</span><span class="p">|</span> <span class="o">*</span><span class="n">cell</span> <span class="o">==</span> <span class="nf">Some</span><span class="p">(</span><span class="nn">Mark</span><span class="p">::</span><span class="n">O</span><span class="p">));</span>
+        <span class="k">if</span> <span class="n">o_line</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nf">Some</span><span class="p">(</span><span class="nn">Outcome</span><span class="p">::</span><span class="nf">Win</span><span class="p">(</span><span class="nn">Mark</span><span class="p">::</span><span class="n">O</span><span class="p">));</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">let</span> <span class="n">all_filled</span> <span class="o">=</span> <span class="k">self</span><span class="na">.0</span><span class="nf">.iter</span><span class="p">()</span><span class="nf">.all</span><span class="p">(</span><span class="nn">Option</span><span class="p">::</span><span class="n">is_some</span><span class="p">);</span>
+    <span class="k">if</span> <span class="n">all_filled</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nf">Some</span><span class="p">(</span><span class="nn">Outcome</span><span class="p">::</span><span class="n">Draw</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nb">None</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="nf">lines</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">LineIter</span> <span class="p">{</span>
+    <span class="n">LineIter</span> <span class="p">{</span>
+        <span class="n">board</span><span class="p">:</span> <span class="k">self</span><span class="p">,</span>
+        <span class="n">idx</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+</main>
+
+      <footer></footer>
+    </div>
+  </body>
+</html>

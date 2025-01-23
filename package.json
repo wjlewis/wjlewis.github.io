@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "publish": "gh-pages --dist _site"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
+  }
+}
