@@ -1,6 +1,8 @@
 ---
 layout: post
 title: "LEM Ain't False"
+tags: tutorial lean logic
+foo: test
 ---
 
 Whether or not the _Law of the Excluded Middle_ is true is the subject of much

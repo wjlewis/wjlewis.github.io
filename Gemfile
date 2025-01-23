@@ -25,7 +25,14 @@ end
 # do not have a Java counterpart.
 gem "http_parser.rb", "~> 0.6.0", :platforms => [:jruby]
 
-
 gem "webrick", "~> 1.9"
 
 gem "rouge", "~> 4.5"
+
+
+gem "kramdown-math-katex", "~> 1.0"
+
+gem "katex", "~> 0.10.0"
+gem "execjs", "~> 2.10"
+
+gem "therubyracer", "~> 0.12.3"

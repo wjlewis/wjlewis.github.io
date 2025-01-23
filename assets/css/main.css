@@ -15,7 +15,7 @@ body {
 }
 
 header {
-  margin: 20px 0;
+  margin: 40px 0 20px;
 }
 
 nav {
@@ -50,6 +50,7 @@ code {
 
 pre {
   overflow-x: auto;
+  background-color: #f1ecd2;
 }
 
 pre code {
@@ -59,4 +60,19 @@ pre code {
 
 blockquote {
   margin: 2em;
+}
+
+.posts {
+  line-height: 1.5;
+}
+
+.posts > li > a {
+  margin-right: 8px;
+}
+
+.tag {
+  font-size: 0.8em;
+  padding: 0 4px;
+  background-color: #f1eac2;
+  color: #333;
 }

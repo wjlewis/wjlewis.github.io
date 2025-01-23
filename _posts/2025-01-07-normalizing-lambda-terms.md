@@ -1,6 +1,7 @@
 ---
 layout: post
 title: 'Normalizing Lambda Terms'
+tags: tutorial haskell lambda-calculus
 ---
 
 In this post we'll look at how to normalize lambda terms in a purely _syntactic_

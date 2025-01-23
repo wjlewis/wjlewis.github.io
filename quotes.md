@@ -8,9 +8,24 @@ permalink: /quotes
 >
 > \- Gerry Sussman
 
-> The best food is made at home.
+> A desire not to butt into other people's business is at least eighty percent
+> of all human wisdom.
 >
-> \- NYC Cab Driver
+> \- Robert Heinlein
+
+> Muad'Dib learned rapidly because his first training was in how to learn.
+> And the first lesson of all was the basic trust that he could learn.
+> It's shocking to find how many people do not believe they can learn, and how
+> many more believe learning to be difficult.
+> Muad'Dib knew that every experience carries its lesson.
+>
+> \- Frank Herbert
+
+> It seems to me that if you or I must choose between two courses of thought or
+> action, we should remember our dying and try so to live that our death brings no
+> pleasure to the world.
+>
+> \- John Steinbeck
 
 > In many ways, the work of a critic is easy.
 > We risk very little, yet enjoy a position over those who offer up their work and
@@ -31,35 +46,18 @@ permalink: /quotes
 >
 > \- Serge Lang
 
+> Truly, if I could not be Alexander, I would want to be Diogenes.
+>
+> \- Alexander the Great
+
 > It ain't what you don't know that gets you into trouble.
 > It's what you know for sure that just ain't so.
 >
 > \- Mark Twain
 
-> Nōlī turbāre circulōs meōs!
->
-> \- Archimedes
-
-> Truly, if I were not Alexander, I wish I were Diogenes.
->
-> \- Alexander the Great
-
 > Begin at once to live, and count each separate day as a separate life.
 >
 > \- Seneca
-
-> The price we paid was the price men have always paid for achieving a paradise
-> in this life&mdash;we went soft, we lost our edge.
->
-> \- Frank Herbert
-
-> Muad'Dib learned rapidly because his first training was in how to learn.
-> And the first lesson of all was the basic trust that he could learn.
-> It's shocking to find how many people do not believe they can learn, and how
-> many more believe learning to be difficult.
-> Muad'Dib knew that every experience carries its lesson.
->
-> \- Frank Herbert
 
 > "The best thing for being sad," replied Merlin, beginning to puff and blow, "is
 > to learn something.
@@ -80,14 +78,3 @@ permalink: /quotes
 > And now that you don't have to be perfect, you can be good.
 >
 > \- John Steinbeck
-
-> It seems to me that if you or I must choose between two courses of thought or
-> action, we should remember our dying and try so to live that our death brings no
-> pleasure to the world.
->
-> \- John Steinbeck
-
-> A desire not to butt into other people's business is at least eighty percent
-> of all human wisdom.
->
-> \- Robert Heinlein
