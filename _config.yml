@@ -2,7 +2,7 @@ title: Blog
 email: wjlewis2@protonmail.com
 description: >-
   William Lewis' personal blog.
-baseurl: '' # the subpath of your site, e.g. /blog
+baseurl: ''
 url: 'https://wjlewis.github.io'
 highlighter: rouge
 kramdown:

@@ -728,7 +728,7 @@ print(limit(s3))
 
 One critical shortcoming of `limit` is that it's not able to compute the limit
 of any interesting sequences.
-For instance, this sequences converges to Euler's number ($$e$$):
+For instance, this sequence converges to Euler's number ($$e$$):
 
 $$
 n \mapsto \left(1 + \frac{1}{n}\right)^n
