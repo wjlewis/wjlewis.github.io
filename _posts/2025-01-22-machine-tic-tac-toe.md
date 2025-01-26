@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 'Teaching My Machine to Play Tic-Tac-Toe'
-tags: log rust
+tags: Log Rust
 ---
 
 I spent the last few mornings writing a [program](https://github.com/wjlewis/tic-tac-toe)

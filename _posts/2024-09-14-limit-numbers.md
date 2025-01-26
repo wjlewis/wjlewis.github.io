@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 'Limit Numbers'
-tags: sketch math python
+tags: Sketch Math Python
 katex: True
 ---
 

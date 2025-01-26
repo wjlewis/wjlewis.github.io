@@ -1,14 +1,14 @@
 ---
 layout: post
 title: "LEM Ain't False"
-tags: tutorial lean logic
+tags: Tutorial Lean Logic
 foo: test
 ---
 
 Whether or not the _Law of the Excluded Middle_ is true is the subject of much
 debate.
 But we know for sure that it's not false.
-Let's see how to prove this in LEAN.
+Let's see how to prove this in Lean.
 
 First, the statement of the result:
 
