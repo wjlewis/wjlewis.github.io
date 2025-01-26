@@ -1,4 +1,248 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="https://wjlewis.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://wjlewis.github.io/" rel="alternate" type="text/html" /><updated>2025-01-24T07:35:39-05:00</updated><id>https://wjlewis.github.io/feed.xml</id><title type="html">Blog</title><subtitle>William Lewis&apos; personal blog.</subtitle><entry><title type="html">Teaching My Machine to Play Tic-Tac-Toe</title><link href="https://wjlewis.github.io/2025/01/22/machine-tic-tac-toe.html" rel="alternate" type="text/html" title="Teaching My Machine to Play Tic-Tac-Toe" /><published>2025-01-22T00:00:00-05:00</published><updated>2025-01-22T00:00:00-05:00</updated><id>https://wjlewis.github.io/2025/01/22/machine-tic-tac-toe</id><content type="html" xml:base="https://wjlewis.github.io/2025/01/22/machine-tic-tac-toe.html"><![CDATA[<p>I spent the last few mornings writing a <a href="https://github.com/wjlewis/tic-tac-toe">program</a>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="https://wjlewis.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://wjlewis.github.io/" rel="alternate" type="text/html" /><updated>2025-01-26T06:56:42-05:00</updated><id>https://wjlewis.github.io/feed.xml</id><title type="html">Blog</title><subtitle>William Lewis&apos; personal blog.</subtitle><entry><title type="html">This is not a Compiler</title><link href="https://wjlewis.github.io/2025/01/26/not-a-compiler.html" rel="alternate" type="text/html" title="This is not a Compiler" /><published>2025-01-26T00:00:00-05:00</published><updated>2025-01-26T00:00:00-05:00</updated><id>https://wjlewis.github.io/2025/01/26/not-a-compiler</id><content type="html" xml:base="https://wjlewis.github.io/2025/01/26/not-a-compiler.html"><![CDATA[<p>What’s the difference between a compiler and an interpreter?
+An interpreter “runs” a program, whereas a compiler transforms a program in one
+language into an equivalent program in another language.</p>
+
+<p>The slogan is: <em>interpreters <strong>reveal</strong> meaning; compilers <strong>preserve</strong> meaning</em>.</p>
+
+<p>In other words, it doesn’t matter which path you take in the following directed
+graph, the meaning is the same:</p>
+
+<p><img src="/assets/images/interpret-compile.png" alt="A directed graph illustrating the relationship between compilers and interpreters" /></p>
+
+<p>(That is, the diagram “commutes”.)</p>
+
+<p>That’s really all you need to know.
+And if you find that definition satisfactory, read no further!</p>
+
+<h2 id="fuzzy-boundaries">Fuzzy Boundaries</h2>
+
+<p>The potential problem here is that we’ve just <em>defined</em> something.
+We’ve drawn a boundary around certain things and called them “compilers”, and
+another boundary around other things and called them “interpreters”.</p>
+
+<p>And at some point in history we really started asking too much of our
+definitions.
+We forgot that—like clouds and seashores—they have fuzzy boundaries.
+And the definition I’ve given above is no exception.
+In this post we’ll look at some of the “fuzz” along its fringes.</p>
+
+<h2 id="the-big-picture">The Big Picture</h2>
+
+<p>We’ll write a program that “compiles” Scheme to JavaScript by simply embedding a
+Scheme interpreter (written in JavaScript) alongside the program we asked it to
+compile.
+Here’s what that looks like:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Transform a Scheme program into an equivalent JavaScript program by cheating.
+ * Specifically, just bundle the source code of a Scheme interpreter along with
+ * the provided program.
+ */</span>
+<span class="kd">function</span> <span class="nf">compile</span><span class="p">(</span><span class="nx">program</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="s2">`
+// What follows is the source code for a Scheme interpreter, written in
+// JavaScript:
+
+function interpret(program) {
+  // ...
+}
+
+// Now just call "interpret" on the program we're supposed to compile:
+
+interpret(</span><span class="se">\`</span><span class="p">${</span><span class="nx">program</span><span class="p">}</span><span class="se">\`</span><span class="s2">);
+`</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>To keep this note short and to the point, I’ve already prepared a small
+(“pocket-sized”) Scheme interpreter.
+The source code is available <a href="https://gist.githubusercontent.com/wjlewis/55d5f5b92afbf7f422700ea14d559086/raw/a3ed6f633240244d58dd537d615a9e28bf5ad3f9/pocket-scheme.js">here</a>.
+I saved this to a file named <em>interpret.js</em>:</p>
+
+<p>To define <code class="language-plaintext highlighter-rouge">compile</code>, we’re going to need to paste this interpreter source code
+inside a template string.
+So we need to take care to escape all backticks (<code class="language-plaintext highlighter-rouge">`</code>), dollar signs (<code class="language-plaintext highlighter-rouge">$</code>) and
+escape characters (<code class="language-plaintext highlighter-rouge">\</code>).
+This is easy enough to do manually, but we can also automate it with a little
+script.</p>
+
+<p>I saved the following to a file named <em>quote.js</em>:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">process</span><span class="p">.</span><span class="nx">stdin</span>
+  <span class="p">.</span><span class="nf">setEncoding</span><span class="p">(</span><span class="dl">'</span><span class="s1">utf-8</span><span class="dl">'</span><span class="p">)</span>
+  <span class="c1">// Replace backticks (`), dollar signs ($), and escape characters (\) with an</span>
+  <span class="c1">// escaped version, e.g. $ -&gt; \$.</span>
+  <span class="p">.</span><span class="nf">map</span><span class="p">(</span><span class="nx">chunk</span> <span class="o">=&gt;</span> <span class="nx">chunk</span><span class="p">.</span><span class="nf">replace</span><span class="p">(</span><span class="sr">/`|</span><span class="se">\$</span><span class="sr">|</span><span class="se">\\</span><span class="sr">/g</span><span class="p">,</span> <span class="nx">c</span> <span class="o">=&gt;</span> <span class="s2">`</span><span class="se">\\</span><span class="p">${</span><span class="nx">c</span><span class="p">}</span><span class="s2">`</span><span class="p">))</span>
+  <span class="p">.</span><span class="nf">pipe</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">stdout</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>and then produced an escaped version of <em>interpret.js</em> via:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>node quote.js &lt; interpret.js <span class="o">&gt;</span> interpret-escaped.txt
+</code></pre></div></div>
+
+<h2 id="defining-compile">Defining <code class="language-plaintext highlighter-rouge">compile</code></h2>
+
+<p>The moment has arrived.
+I created a new file named <em>compile.js</em>, and copied the escaped interpreter
+source into the body of a function named <code class="language-plaintext highlighter-rouge">compile</code>.
+I also included the critical invocation of the (quoted) <code class="language-plaintext highlighter-rouge">interpret</code> function on
+the source of the program to be “compiled”:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nf">compile</span><span class="p">(</span><span class="nx">source</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">interpreterSource</span> <span class="o">=</span> <span class="s2">`
+function lex(source) {
+  const tokens = [];
+  let pos = 0;
+
+  function skipWhile(pred) {
+...
+...
+...
+`</span><span class="p">;</span>
+
+  <span class="k">return</span> <span class="s2">`
+</span><span class="p">${</span><span class="nx">interpreterSource</span><span class="p">}</span><span class="s2">
+
+interpret(</span><span class="se">\`</span><span class="p">${</span><span class="nx">source</span><span class="p">}</span><span class="se">\`</span><span class="s2">);
+`</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Finally, to make our “compiler” a little more ergonomic, let’s read input
+programs from <code class="language-plaintext highlighter-rouge">stdin</code> and write the compiled output to <code class="language-plaintext highlighter-rouge">stdout</code>:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">fs</span><span class="dl">'</span><span class="p">);</span>
+
+<span class="kd">function</span> <span class="nf">compile</span><span class="p">(</span><span class="nx">source</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">source</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nf">readFileSync</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="dl">'</span><span class="s1">utf-8</span><span class="dl">'</span><span class="p">);</span>
+<span class="nx">fs</span><span class="p">.</span><span class="nf">writeFileSync</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nf">compile</span><span class="p">(</span><span class="nx">source</span><span class="p">));</span>
+</code></pre></div></div>
+
+<p>The full listing is available <a href="https://gist.githubusercontent.com/wjlewis/8f8df731152c62dacfaf36bd3693cab1/raw/7606b7801125ea4c7884d9b0cc58028f5d2d8959/compile.js">here</a>.</p>
+
+<p>We can now compile Scheme files, like <em>basic.scm</em>:</p>
+
+<div class="language-scheme highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">;; basic.scm</span>
+
+<span class="p">(</span><span class="k">define</span> <span class="nv">+</span>
+  <span class="p">(</span><span class="k">lambda</span> <span class="p">(</span><span class="nf">m</span> <span class="nv">n</span><span class="p">)</span>
+    <span class="p">(</span><span class="k">cond</span>
+      <span class="p">((</span><span class="nb">zero?</span> <span class="nv">m</span><span class="p">)</span> <span class="nv">n</span><span class="p">)</span>
+      <span class="p">(</span><span class="k">else</span> <span class="p">(</span><span class="nf">add1</span> <span class="p">(</span><span class="nb">+</span> <span class="p">(</span><span class="nf">sub1</span> <span class="nv">m</span><span class="p">)</span> <span class="nv">n</span><span class="p">))))))</span>
+
+<span class="p">(</span><span class="k">define</span> <span class="nv">*</span>
+  <span class="p">(</span><span class="k">lambda</span> <span class="p">(</span><span class="nf">m</span> <span class="nv">n</span><span class="p">)</span>
+    <span class="p">(</span><span class="k">cond</span>
+      <span class="p">((</span><span class="nb">zero?</span> <span class="nv">m</span><span class="p">)</span> <span class="mi">0</span><span class="p">)</span>
+      <span class="p">(</span><span class="k">else</span> <span class="p">(</span><span class="nb">+</span> <span class="nv">n</span> <span class="p">(</span><span class="nb">*</span> <span class="p">(</span><span class="nf">sub1</span> <span class="nv">m</span><span class="p">)</span> <span class="nv">n</span><span class="p">))))))</span>
+
+<span class="p">(</span><span class="k">define</span> <span class="nv">map</span>
+  <span class="p">(</span><span class="k">lambda</span> <span class="p">(</span><span class="nf">fn</span> <span class="nv">l</span><span class="p">)</span>
+    <span class="p">(</span><span class="k">cond</span>
+      <span class="p">((</span><span class="nb">null?</span> <span class="nv">l</span><span class="p">)</span> <span class="p">(</span><span class="k">quote</span> <span class="p">()))</span>
+      <span class="p">(</span><span class="k">else</span> <span class="p">(</span><span class="nb">cons</span> <span class="p">(</span><span class="nf">fn</span> <span class="p">(</span><span class="nb">car</span> <span class="nv">l</span><span class="p">))</span>
+                  <span class="p">(</span><span class="nb">map</span> <span class="nv">fn</span> <span class="p">(</span><span class="nb">cdr</span> <span class="nv">l</span><span class="p">)))))))</span>
+
+<span class="p">(</span><span class="k">define</span> <span class="nv">^2</span> <span class="p">(</span><span class="k">lambda</span> <span class="p">(</span><span class="nf">n</span><span class="p">)</span> <span class="p">(</span><span class="nb">*</span> <span class="nv">n</span> <span class="nv">n</span><span class="p">)))</span>
+
+<span class="p">(</span><span class="nf">print</span> <span class="p">(</span><span class="nb">map</span> <span class="nv">^2</span> <span class="p">(</span><span class="k">quote</span> <span class="p">(</span><span class="nf">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span><span class="p">))))</span>
+</code></pre></div></div>
+
+<p>via:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>node compile.js &lt; basic.scm <span class="o">&gt;</span> basic.js
+</code></pre></div></div>
+
+<p>This produces a JavaScript file <em>basic.js</em> which, when run, results in:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>node basic.js
+<span class="o">(</span>1 4 9 16 25<span class="o">)</span>
+</code></pre></div></div>
+
+<h2 id="is-this-a-compiler">Is this a Compiler?</h2>
+
+<p>Yes!
+Well, at least according to the definition above, since:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Follow the horizontal arrow in the diagram above, compiling my-prog.scm to</span>
+<span class="c"># my-prog.js.</span>
+<span class="nv">$ </span>node compile.js &lt; my-prog.scm <span class="o">&gt;</span> my-prog.js
+
+<span class="c"># Now follow the right branch, interpreting my-prog.js. In this case, `node` is</span>
+<span class="c"># `interpret2`.</span>
+<span class="nv">$ </span>node my-prog.js
+</code></pre></div></div>
+
+<p>and</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Follow the left branch, interpreting my-prog.scm. In this case, `scheme` is</span>
+<span class="c"># `interpret1`.</span>
+<span class="nv">$ </span>scheme my-prog.scm
+</code></pre></div></div>
+
+<p>produce the same result.</p>
+
+<p>But is it <em>really</em> a compiler?
+I would have expected a compiler to transform the Scheme program:</p>
+
+<div class="language-scheme highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="nf">print</span> <span class="p">(</span><span class="nb">+</span> <span class="mi">1</span> <span class="mi">2</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>into something like:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>but instead it produces this monstrosity:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nf">lex</span><span class="p">(</span><span class="nx">source</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">tokens</span> <span class="o">=</span> <span class="p">[];</span>
+  <span class="kd">let</span> <span class="nx">pos</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+  <span class="kd">function</span> <span class="nf">skipWhile</span><span class="p">(</span><span class="nx">pred</span><span class="p">)</span> <span class="p">{</span>
+<span class="c1">// ...</span>
+
+<span class="c1">// ...</span>
+<span class="nf">interpret</span><span class="p">(</span><span class="s2">`(print (+ 1 2))`</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h2 id="this-is-not-a-translation">This is not a Translation</h2>
+
+<p>We expect a compiler to <em>know</em> something about both its source and target
+languages.
+But our compiler doesn’t really know anything about Scheme.
+It’s as if I claimed to know both French and English, but whenever you asked me
+to translate a bit of French I simply wrote down:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>The English translation of "&lt;French-phrase&gt;".
+</code></pre></div></div>
+
+<p>For example, I’d translate <em>apporte-moi un croissant</em> as:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>The English translation of "apporte-moi un croissant".
+</code></pre></div></div>
+
+<p>Note that this is:</p>
+
+<ul>
+  <li>A sentence in English.</li>
+  <li>Whose meaning—in English—is the same as the meaning—in
+French—of <em>apporte-moi un croissant</em>.</li>
+</ul>
+
+<p>But “executing” it requires having someone who speaks French available “at
+runtime”.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>So is <em>compile.js</em> a compiler, or not?
+It doesn’t matter!
+It’s a happy little clam living somewhere in the intertidal zone, resisting our
+futile attempts to put in a box.</p>]]></content><author><name></name></author><category term="PL" /><summary type="html"><![CDATA[What’s the difference between a compiler and an interpreter? An interpreter “runs” a program, whereas a compiler transforms a program in one language into an equivalent program in another language.]]></summary></entry><entry><title type="html">Teaching My Machine to Play Tic-Tac-Toe</title><link href="https://wjlewis.github.io/2025/01/22/machine-tic-tac-toe.html" rel="alternate" type="text/html" title="Teaching My Machine to Play Tic-Tac-Toe" /><published>2025-01-22T00:00:00-05:00</published><updated>2025-01-22T00:00:00-05:00</updated><id>https://wjlewis.github.io/2025/01/22/machine-tic-tac-toe</id><content type="html" xml:base="https://wjlewis.github.io/2025/01/22/machine-tic-tac-toe.html"><![CDATA[<p>I spent the last few mornings writing a <a href="https://github.com/wjlewis/tic-tac-toe">program</a>
 that plays an optimal game of Tic-Tac-Toe:</p>
 
 <p><img src="/assets/images/tic-tac-toe.gif" alt="Playing tic-tac-toe against my computer" /></p>
@@ -152,10 +396,10 @@ With <code class="language-plaintext highlighter-rouge">LineIter</code>, we can 
         <span class="n">idx</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">}</span>
 <span class="p">}</span>
-</code></pre></div></div>]]></content><author><name></name></author><category term="log" /><category term="rust" /><summary type="html"><![CDATA[I spent the last few mornings writing a program that plays an optimal game of Tic-Tac-Toe:]]></summary></entry><entry><title type="html">LEM Ain’t False</title><link href="https://wjlewis.github.io/2025/01/10/lem-aint-false.html" rel="alternate" type="text/html" title="LEM Ain’t False" /><published>2025-01-10T00:00:00-05:00</published><updated>2025-01-10T00:00:00-05:00</updated><id>https://wjlewis.github.io/2025/01/10/lem-aint-false</id><content type="html" xml:base="https://wjlewis.github.io/2025/01/10/lem-aint-false.html"><![CDATA[<p>Whether or not the <em>Law of the Excluded Middle</em> is true is the subject of much
+</code></pre></div></div>]]></content><author><name></name></author><category term="Log" /><category term="Rust" /><summary type="html"><![CDATA[I spent the last few mornings writing a program that plays an optimal game of Tic-Tac-Toe:]]></summary></entry><entry><title type="html">LEM Ain’t False</title><link href="https://wjlewis.github.io/2025/01/10/lem-aint-false.html" rel="alternate" type="text/html" title="LEM Ain’t False" /><published>2025-01-10T00:00:00-05:00</published><updated>2025-01-10T00:00:00-05:00</updated><id>https://wjlewis.github.io/2025/01/10/lem-aint-false</id><content type="html" xml:base="https://wjlewis.github.io/2025/01/10/lem-aint-false.html"><![CDATA[<p>Whether or not the <em>Law of the Excluded Middle</em> is true is the subject of much
 debate.
 But we know for sure that it’s not false.
-Let’s see how to prove this in LEAN.</p>
+Let’s see how to prove this in Lean.</p>
 
 <p>First, the statement of the result:</p>
 
@@ -293,7 +537,7 @@ Specifically, here’s a proof of <code class="language-plaintext highlighter-ro
 It’s proven using the <a href="https://en.wikipedia.org/wiki/Axiom_of_choice">axiom of choice</a>,
 a result known as
 <a href="https://en.wikipedia.org/wiki/Diaconescu%27s_theorem">Diaconescu’s theorem</a>.
-The axiom of choice <em>is</em> an axiom in Lean.</p>]]></content><author><name></name></author><category term="tutorial" /><category term="lean" /><category term="logic" /><summary type="html"><![CDATA[Whether or not the Law of the Excluded Middle is true is the subject of much debate. But we know for sure that it’s not false. Let’s see how to prove this in LEAN.]]></summary></entry><entry><title type="html">Normalizing Lambda Terms</title><link href="https://wjlewis.github.io/2025/01/07/normalizing-lambda-terms.html" rel="alternate" type="text/html" title="Normalizing Lambda Terms" /><published>2025-01-07T00:00:00-05:00</published><updated>2025-01-07T00:00:00-05:00</updated><id>https://wjlewis.github.io/2025/01/07/normalizing-lambda-terms</id><content type="html" xml:base="https://wjlewis.github.io/2025/01/07/normalizing-lambda-terms.html"><![CDATA[<p>In this post we’ll look at how to normalize lambda terms in a purely <em>syntactic</em>
+The axiom of choice <em>is</em> an axiom in Lean.</p>]]></content><author><name></name></author><category term="Tutorial" /><category term="Lean" /><category term="Logic" /><summary type="html"><![CDATA[Whether or not the Law of the Excluded Middle is true is the subject of much debate. But we know for sure that it’s not false. Let’s see how to prove this in Lean.]]></summary></entry><entry><title type="html">Normalizing Lambda Terms</title><link href="https://wjlewis.github.io/2025/01/07/normalizing-lambda-terms.html" rel="alternate" type="text/html" title="Normalizing Lambda Terms" /><published>2025-01-07T00:00:00-05:00</published><updated>2025-01-07T00:00:00-05:00</updated><id>https://wjlewis.github.io/2025/01/07/normalizing-lambda-terms</id><content type="html" xml:base="https://wjlewis.github.io/2025/01/07/normalizing-lambda-terms.html"><![CDATA[<p>In this post we’ll look at how to normalize lambda terms in a purely <em>syntactic</em>
 way (i.e. without appealing to neat but fancy techniques like normalization by
 evaluation).</p>
 
@@ -601,7 +845,7 @@ normalized:</p>
 
 <p>Well that’s enough fun for now.
 In future posts we’ll see how to extend this system along a number of different
-dimensions.</p>]]></content><author><name></name></author><category term="tutorial" /><category term="haskell" /><category term="lambda-calculus" /><summary type="html"><![CDATA[In this post we’ll look at how to normalize lambda terms in a purely syntactic way (i.e. without appealing to neat but fancy techniques like normalization by evaluation).]]></summary></entry><entry><title type="html">Limit Numbers</title><link href="https://wjlewis.github.io/2024/09/14/limit-numbers.html" rel="alternate" type="text/html" title="Limit Numbers" /><published>2024-09-14T00:00:00-04:00</published><updated>2024-09-14T00:00:00-04:00</updated><id>https://wjlewis.github.io/2024/09/14/limit-numbers</id><content type="html" xml:base="https://wjlewis.github.io/2024/09/14/limit-numbers.html"><![CDATA[<p>I feel split in two when doing calculus.
+dimensions.</p>]]></content><author><name></name></author><category term="Tutorial" /><category term="Haskell" /><category term="Lambda-Calculus" /><summary type="html"><![CDATA[In this post we’ll look at how to normalize lambda terms in a purely syntactic way (i.e. without appealing to neat but fancy techniques like normalization by evaluation).]]></summary></entry><entry><title type="html">Limit Numbers</title><link href="https://wjlewis.github.io/2024/09/14/limit-numbers.html" rel="alternate" type="text/html" title="Limit Numbers" /><published>2024-09-14T00:00:00-04:00</published><updated>2024-09-14T00:00:00-04:00</updated><id>https://wjlewis.github.io/2024/09/14/limit-numbers</id><content type="html" xml:base="https://wjlewis.github.io/2024/09/14/limit-numbers.html"><![CDATA[<p>I feel split in two when doing calculus.
 We can readily translate certain operations (like differentiation) into
 algorithms.
 In other cases—antidifferentation comes to mind—the “computational
@@ -1470,4 +1714,4 @@ the famous twin primes conjecture!</p>
 doesn’t just feel “patchy” because it only handles a few hand-picked special
 cases like Euler’s sequence).</li>
   <li>Can we allow computation of roots without allowing general computation?</li>
-</ul>]]></content><author><name></name></author><category term="sketch" /><category term="math" /><category term="python" /><summary type="html"><![CDATA[I feel split in two when doing calculus. We can readily translate certain operations (like differentiation) into algorithms. In other cases—antidifferentation comes to mind—the “computational content” is less clear, as they tend to require hunting for a solution using ad-hoc and often very clever tricks.]]></summary></entry></feed>
+</ul>]]></content><author><name></name></author><category term="Sketch" /><category term="Math" /><category term="Python" /><summary type="html"><![CDATA[I feel split in two when doing calculus. We can readily translate certain operations (like differentiation) into algorithms. In other cases—antidifferentation comes to mind—the “computational content” is less clear, as they tend to require hunting for a solution using ad-hoc and often very clever tricks.]]></summary></entry></feed>
