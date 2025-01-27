@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="349.5"
+   height="254.24149"
+   viewBox="0 0 92.471874 67.268063"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   sodipodi:docname="golden-rectangle-ratio.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="px"
+     showgrid="false"
+     inkscape:zoom="1.9930928"
+     inkscape:cx="145.00077"
+     inkscape:cy="176.8608"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     units="px"
+     width="128px"
+     fit-margin-top="10"
+     fit-margin-left="10"
+     fit-margin-right="10"
+     fit-margin-bottom="10">
+    <inkscape:grid
+       type="xygrid"
+       id="grid844"
+       empspacing="4"
+       originx="7.0114584"
+       originy="7.0774684" />
+  </sodipodi:namedview>
+  <defs
+     id="defs2">
+    <marker
+       style="overflow:visible"
+       id="Arrow1Mend"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Mend"
+       inkscape:isstock="true">
+      <path
+         transform="matrix(-0.4,0,0,-0.4,-4,0)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path12076" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="Arrow1Mstart"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Mstart"
+       inkscape:isstock="true">
+      <path
+         transform="matrix(0.4,0,0,0.4,4,0)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path12073" />
+    </marker>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(7.0114593,7.0774676)">
+    <rect
+       style="fill:#f3e09f;fill-opacity:1;stroke:none;stroke-width:0.907143"
+       id="rect3938"
+       width="50.800003"
+       height="50.800003"
+       x="1.0583332"
+       y="1.0583334" />
+    <rect
+       style="fill:none;fill-opacity:1;stroke:#edbf2a;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect873"
+       width="81.491669"
+       height="50.932289"
+       x="1.0583332"
+       y="1.0583334" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 1.0583332,-1.0583329 V -3.1749996"
+       id="path4478" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 82.550001,-1.0583329 V -3.1749996"
+       id="path4560" />
+    <text
+       xml:space="preserve"
+       style="font-size:5.47111px;line-height:1.25;font-family:'CMU Serif';-inkscape-font-specification:'CMU Serif';letter-spacing:0px;word-spacing:0px;stroke-width:0.136778"
+       x="39.849678"
+       y="-0.5153026"
+       id="text5092"><tspan
+         sodipodi:role="line"
+         id="tspan5090"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'CMU Classical Serif';-inkscape-font-specification:'CMU Classical Serif';stroke-width:0.136778"
+         x="39.849678"
+         y="-0.5153026">A</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow1Mstart);marker-end:url(#Arrow1Mend)"
+       d="m 1.5874998,-2.1166662 37.5607292,-10e-8 m 5.416324,10e-8 h 37.456281"
+       id="path11985"
+       sodipodi:nodetypes="cccc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1"
+       d="m -4.2333341,1.0583336 h 2.116667"
+       id="path13219" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1"
+       d="m -4.2333344,52.122918 h 2.116667"
+       id="path13221" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow1Mstart);marker-end:url(#Arrow1Mend)"
+       d="m -3.1750005,1.5875002 10e-8,20.8733838 m -10e-8,7.17245 v 21.960417"
+       id="path13227"
+       sodipodi:nodetypes="cccc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 51.858334,57.090529 V 54.973863"
+       id="path15249" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 82.550001,57.090529 V 54.973863"
+       id="path15251" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.47111px;line-height:1.25;font-family:'CMU Serif';-inkscape-font-specification:'CMU Serif';letter-spacing:0px;word-spacing:0px;stroke-width:0.136778"
+       x="62.393623"
+       y="57.544762"
+       id="text15255"><tspan
+         sodipodi:role="line"
+         id="tspan15253"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'CMU Classical Serif';-inkscape-font-specification:'CMU Classical Serif';stroke-width:0.136778"
+         x="62.393623"
+         y="57.544762">A - <tspan
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'CMU Serif';-inkscape-font-specification:'CMU Serif'"
+   id="tspan10443">1</tspan></tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow1Mstart);marker-end:url(#Arrow1Mend)"
+       d="m 52.353386,56.032196 h 9.775203 m 12.681133,0 h 7.259745"
+       id="path15257"
+       sodipodi:nodetypes="cccc" />
+    <text
+       xml:space="preserve"
+       style="font-size:5.47111px;line-height:1.25;font-family:'CMU Serif';-inkscape-font-specification:'CMU Serif';letter-spacing:0px;word-spacing:0px;stroke-width:0.136778"
+       x="-4.5116315"
+       y="28.161531"
+       id="text3856"><tspan
+         sodipodi:role="line"
+         id="tspan3854"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'CMU Serif';-inkscape-font-specification:'CMU Serif';stroke-width:0.136778"
+         x="-4.5116315"
+         y="28.161531">1</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 1.0583325,57.150002 V 55.033336"
+       id="path2537" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow1Mstart);marker-end:url(#Arrow1Mend)"
+       d="m 1.5874991,56.091669 21.3076679,0 m 5.0698,0 23.893367,0"
+       id="path2541"
+       sodipodi:nodetypes="cccc" />
+    <text
+       xml:space="preserve"
+       style="font-size:5.47111px;line-height:1.25;font-family:'CMU Serif';-inkscape-font-specification:'CMU Serif';letter-spacing:0px;word-spacing:0px;stroke-width:0.136778"
+       x="23.954729"
+       y="57.634781"
+       id="text2876"><tspan
+         sodipodi:role="line"
+         id="tspan2874"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'CMU Serif';-inkscape-font-specification:'CMU Serif';stroke-width:0.136778"
+         x="23.954729"
+         y="57.634781">1</tspan></text>
+  </g>
+</svg>
