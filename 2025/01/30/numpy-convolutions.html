@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>2D Convolutions with Numpy</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="/assets/css/syntax.css" />
+
+    
+  </head>
+
+  <body>
+    <div id="content">
+      <header>
+        <nav>
+          <a href="/">
+            <img
+              id="sonobe"
+              src="/assets/images/sonobe.svg"
+              alt="A sonobe module"
+            />
+          </a>
+
+          <a href="/about">About</a>
+        </nav>
+      </header>
+
+      <main><h1>2D Convolutions with Numpy</h1>
+
+<p><img src="/assets/images/david-conv.jpeg" alt="Michelangelo's David, Convolved" /></p>
+
+<p>I’ve only recently glimpsed the full power of <code class="language-plaintext highlighter-rouge">numpy</code>, and as an exercise I
+decided to play around with image convolution.
+This was trickier than I expected, but I learned a lot and ended up being able
+to express convolution very naturally.
+In particular, instead of a bunch of nested loops, like:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">height</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">width</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">kx</span> <span class="ow">in</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">ky</span> <span class="ow">in</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="c1"># Are all of my indexes even correct?
+</span>                <span class="c1"># What about the boundary?
+</span></code></pre></div></div>
+
+<p>We end up with something more like:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">w</span> <span class="o">=</span> <span class="nf">view_windowed</span><span class="p">(</span><span class="n">img_data</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">sum</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>That is, we think of a convolution as a simple process of:</p>
+
+<ol>
+  <li>Constructing a “windowed” view of our data.
+The window is the shape of our kernel, and slides over our data.</li>
+  <li><em>Applying</em> the kernel to each window: think of this as laying the kernel on
+top of each window in turn, multiplying all of the elements from the kernel
+and window that are on top of each other, and then adding these values
+together.</li>
+</ol>
+
+<p>In what follows, we’ll see how <code class="language-plaintext highlighter-rouge">view_windowed</code> is defined.</p>
+
+<h2 id="strides">Strides</h2>
+
+<p>Part of what makes <code class="language-plaintext highlighter-rouge">numpy</code> so interesting (and so performant) is that many
+manipulations that we’d like to perform on arrays can be done by simply
+“viewing” the underlying data differently.
+For example, the following arrays can be constructed as different views of the
+<em>same</em> underlying data:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span><span class="p">]</span>
+
+<span class="p">[[</span><span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span><span class="p">]</span>
+ <span class="p">[</span><span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span><span class="p">]]</span>
+
+<span class="p">[[</span><span class="mi">0</span> <span class="mi">1</span><span class="p">]</span>
+ <span class="p">[</span><span class="mi">2</span> <span class="mi">3</span><span class="p">]</span>
+ <span class="p">[</span><span class="mi">4</span> <span class="mi">5</span><span class="p">]]</span>
+</code></pre></div></div>
+
+<p>They’re just:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a1</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">arange</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">a2</span> <span class="o">=</span> <span class="n">a1</span><span class="p">.</span><span class="nf">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">a3</span> <span class="o">=</span> <span class="n">a1</span><span class="p">.</span><span class="nf">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>“Reshaping” an array constructs a new <em>view</em> of an existing array, but with the
+<code class="language-plaintext highlighter-rouge">shape</code> attribute modified.
+What’s perhaps more surprising is that the following arrays can <em>also</em> be
+construed as simply different views of the same underlying data:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">]</span>
+
+<span class="p">[[</span><span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">]</span>
+ <span class="p">[</span><span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span><span class="p">]</span>
+ <span class="p">[</span><span class="mi">2</span> <span class="mi">2</span> <span class="mi">2</span><span class="p">]</span>
+ <span class="p">[</span><span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span><span class="p">]]</span>
+
+<span class="p">[[</span><span class="mi">0</span> <span class="mi">1</span><span class="p">]</span>
+ <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span><span class="p">]</span>
+ <span class="p">[</span><span class="mi">2</span> <span class="mi">3</span><span class="p">]]</span>
+</code></pre></div></div>
+
+<p>Constructing these involves viewing the original array with both a different
+<em>shape</em> and different <em>strides</em>.</p>
+
+<p>So an array’s <code class="language-plaintext highlighter-rouge">shape</code> attribute tells us how many elements are in each of its
+axes.
+The <code class="language-plaintext highlighter-rouge">strides</code> attribute tells us how far we need to travel in memory to get to
+the next element in each dimension.</p>
+
+<p>This is easy to see with a few examples:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">ones</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">byte</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="c1"># =&gt; [1 1 1 1]
+</span><span class="nf">print</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">strides</span><span class="p">)</span>
+<span class="c1"># =&gt; (1,)
+</span></code></pre></div></div>
+
+<p>So <code class="language-plaintext highlighter-rouge">a</code>’s <code class="language-plaintext highlighter-rouge">strides</code> is <code class="language-plaintext highlighter-rouge">(1,)</code> because in order to get to the next element in its
+zeroth (and only) dimension, we need to move a single byte.
+Changing the item type changes the <code class="language-plaintext highlighter-rouge">strides</code> accordingly:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">np</span><span class="p">.</span><span class="nf">ones</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">uint16</span><span class="p">).</span><span class="n">strides</span>
+<span class="c1"># =&gt; (2,)
+</span><span class="n">np</span><span class="p">.</span><span class="nf">ones</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">int64</span><span class="p">).</span><span class="n">strides</span>
+<span class="c1"># =&gt; (8,)
+</span><span class="n">np</span><span class="p">.</span><span class="nf">ones</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">).</span><span class="n">strides</span>
+<span class="c1"># =&gt; (4,)
+# Etc.
+</span></code></pre></div></div>
+
+<p>So our first observation is that, for a 1-dimensional array:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span><span class="p">.</span><span class="n">strides</span> <span class="o">==</span> <span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">itemsize</span><span class="p">,)</span>
+</code></pre></div></div>
+
+<p>What about a 2-dimensional array?</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">arange</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">byte</span><span class="p">).</span><span class="nf">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="c1"># =&gt; [[0 1 2]
+#     [3 4 5]]
+</span><span class="nf">print</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">strides</span><span class="p">)</span>
+<span class="c1"># =&gt; (3, 1)
+</span></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">a</code> is an array containing 2 elements, each of which is itself an array
+containing 3 elements; and each of <em>those</em> elements is a single byte.
+That <code class="language-plaintext highlighter-rouge">a.strides</code> is <code class="language-plaintext highlighter-rouge">(3, 1)</code> tells us:</p>
+
+<ul>
+  <li>To get to the next element in the “outer” array, you need to move 3 bytes
+(since each element is an array containing 3 items, each of which is a byte).</li>
+  <li>To get to the next element inside each “inner” array, you need to move a
+single byte.</li>
+</ul>
+
+<p>So an array’s <code class="language-plaintext highlighter-rouge">strides</code> is a tuple with an element for each dimension in the
+array.
+For any “normal” array <code class="language-plaintext highlighter-rouge">a</code>, <code class="language-plaintext highlighter-rouge">a.strides[0]</code> is equal to the size of each element
+in <code class="language-plaintext highlighter-rouge">a</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span><span class="p">.</span><span class="n">strides</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">size</span>
+</code></pre></div></div>
+
+<p>And this holds recursively for multidimensional arrays.</p>
+
+<p>But this doesn’t <em>need</em> to be the case.
+For example, here’s a simple 1-dimensional array containing 3 elements:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">byte</span><span class="p">)</span>
+<span class="c1"># =&gt; [0 1 2]
+</span></code></pre></div></div>
+
+<p>We can create the following view of this array:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[[</span><span class="mi">0</span> <span class="mi">0</span><span class="p">]</span>
+ <span class="p">[</span><span class="mi">1</span> <span class="mi">1</span><span class="p">]</span>
+ <span class="p">[</span><span class="mi">2</span> <span class="mi">2</span><span class="p">]]</span>
+</code></pre></div></div>
+
+<p>By <code class="language-plaintext highlighter-rouge">reshaping</code> the array to have the shape <code class="language-plaintext highlighter-rouge">(3, 2)</code> and <em>also</em> changing its
+strides to <code class="language-plaintext highlighter-rouge">(1, 0)</code>.</p>
+
+<p>Why <code class="language-plaintext highlighter-rouge">(1, 0)</code>?
+The view we’re constructing is an array containing 3 elements, each of which is
+an array containing 2 elements; and each element in each inner array is a single
+byte.
+The first element—<code class="language-plaintext highlighter-rouge">1</code>—tells us that to get to the next <em>inner</em>
+array, we need to advance a byte in memory.
+This is correct because the first inner array begins with the <code class="language-plaintext highlighter-rouge">0</code> from the
+original array, the next begins with the <code class="language-plaintext highlighter-rouge">1</code>, and the last with <code class="language-plaintext highlighter-rouge">2</code>.
+The second element—<code class="language-plaintext highlighter-rouge">0</code>—tells us that to get to the next element in
+each inner array, <em>we shouldn’t move at all</em>.
+This has the effect of simply “looping” over that element as many times as the
+<code class="language-plaintext highlighter-rouge">shape</code> dictates, in this case 2.</p>
+
+<p>In order to construct this view in <code class="language-plaintext highlighter-rouge">numpy</code>, we’ll import the <code class="language-plaintext highlighter-rouge">as_strided</code>
+function from <code class="language-plaintext highlighter-rouge">lib.stride_tricks</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">numpy.lib.stride_tricks</span> <span class="kn">import</span> <span class="n">as_strided</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">as_strided</code> expects an array, a shape, and some strides, and constructs the
+specified view.
+For the example above:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">as_strided</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="c1"># =&gt; [[0 0]
+#     [1 1]
+#     [2 2]]
+</span></code></pre></div></div>
+
+<p>One footgun involving strides is that they depend on the size of an array’s
+elements.
+In order to produce the same view of an otherwise equivalent array of <code class="language-plaintext highlighter-rouge">int64</code>s,
+we’d need to update the strides to be <code class="language-plaintext highlighter-rouge">(8, 0)</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">int64</span><span class="p">)</span>
+
+<span class="nf">as_strided</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="c1"># !WRONG!
+# =&gt; [[0 0]
+#     [&lt;garbage&gt; &lt;garbage&gt;]
+#     [&lt;garbage&gt; &lt;garbage&gt;]]
+</span>
+<span class="nf">as_strided</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="c1"># =&gt; [[0 0]
+#     [1 1]
+#     [2 2]]
+</span></code></pre></div></div>
+
+<p>A more “portable” invocation could use the array’s <code class="language-plaintext highlighter-rouge">itemsize</code> instead:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">as_strided</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">itemsize</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="c1"># =&gt; [[0 0]
+#     [1 1]
+#     [2 2]]
+</span>
+<span class="nf">as_strided</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">itemsize</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="c1"># =&gt; [[0 0]
+#     [1 1]
+#     [2 2]]
+</span></code></pre></div></div>
+
+<p>In general, we should try and use techniques like this to avoid directly
+specifying strides other than 0.</p>
+
+<h2 id="a-1d-window">A 1D Window</h2>
+
+<p>Now that we now something about how <code class="language-plaintext highlighter-rouge">shape</code> and <code class="language-plaintext highlighter-rouge">strides</code> interact, let’s
+construct a “windowed” view of a 1D array.
+For instance, given the array:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="c1"># =&gt; [0 1 2 3 4 5 6 7 8 9]
+</span></code></pre></div></div>
+
+<p>we’d like to produce:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[[</span><span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span><span class="p">]</span>
+ <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">]</span>
+ <span class="p">[</span><span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">]</span>
+ <span class="p">[</span><span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span><span class="p">]</span>
+ <span class="p">[</span><span class="mi">4</span> <span class="mi">5</span> <span class="mi">6</span><span class="p">]</span>
+ <span class="p">[</span><span class="mi">5</span> <span class="mi">6</span> <span class="mi">7</span><span class="p">]</span>
+ <span class="p">[</span><span class="mi">6</span> <span class="mi">7</span> <span class="mi">8</span><span class="p">]</span>
+ <span class="p">[</span><span class="mi">7</span> <span class="mi">8</span> <span class="mi">9</span><span class="p">]]</span>
+</code></pre></div></div>
+
+<p>We know what the <code class="language-plaintext highlighter-rouge">shape</code> of the result is: it’s just <code class="language-plaintext highlighter-rouge">(a.size - 2, 3)</code>.
+What about the <code class="language-plaintext highlighter-rouge">strides</code>?
+The distance between subsequent subarrays is simply the distance between
+elements in the original view: <code class="language-plaintext highlighter-rouge">a.itemsize</code>.
+And the distance between elements <em>within</em> each subarray is <em>also</em> the distance
+between elements in the original view.
+So <code class="language-plaintext highlighter-rouge">strides</code> is just <code class="language-plaintext highlighter-rouge">(a.itemsize, a.itemsize)</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">as_strided</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">itemsize</span><span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">itemsize</span><span class="p">))</span>
+<span class="c1"># =&gt; [[0 1 2]
+#     [1 2 3]
+#     [2 3 4]
+#     [3 4 5]
+#     [4 5 6]
+#     [5 6 7]
+#     [6 7 8]
+#     [7 8 9]]
+</span></code></pre></div></div>
+
+<p>We can distance ourselves even further from <code class="language-plaintext highlighter-rouge">stride</code>-related footguns by
+realizing that <code class="language-plaintext highlighter-rouge">(a.itemsize, a.itemsize)</code> is just equal to <code class="language-plaintext highlighter-rouge">a.strides * 2</code>
+(which just concatenates <code class="language-plaintext highlighter-rouge">a.strides</code> with itself).</p>
+
+<h2 id="a-2d-window">A 2D Window</h2>
+
+<p>Let’s apply what we just learned to a 2-dimensional array, like:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">arange</span><span class="p">(</span><span class="mi">20</span><span class="p">).</span><span class="nf">reshape</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="c1"># =&gt; [[ 0  1  2  3  4]
+#     [ 5  6  7  8  9]
+#     [10 11 12 13 14]
+#     [15 16 17 18 19]]
+</span></code></pre></div></div>
+
+<p>We want to produce a view that scans a 3x3 “window” over this array, analogous
+to what we did in a single dimension above.
+The view should look like this:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[[[[</span> <span class="mi">0</span>  <span class="mi">1</span>  <span class="mi">2</span><span class="p">]</span>  <span class="p">[[</span> <span class="mi">1</span>  <span class="mi">2</span>  <span class="mi">3</span><span class="p">]</span>  <span class="p">[[</span> <span class="mi">2</span>  <span class="mi">3</span>  <span class="mi">4</span><span class="p">]</span>
+   <span class="p">[</span> <span class="mi">5</span>  <span class="mi">6</span>  <span class="mi">7</span><span class="p">]</span>   <span class="p">[</span> <span class="mi">6</span>  <span class="mi">7</span>  <span class="mi">8</span><span class="p">]</span>   <span class="p">[</span> <span class="mi">7</span>  <span class="mi">8</span>  <span class="mi">9</span><span class="p">]</span>
+   <span class="p">[</span><span class="mi">10</span> <span class="mi">11</span> <span class="mi">12</span><span class="p">]]</span>  <span class="p">[</span><span class="mi">11</span> <span class="mi">12</span> <span class="mi">13</span><span class="p">]]</span>  <span class="p">[</span><span class="mi">12</span> <span class="mi">13</span> <span class="mi">14</span><span class="p">]]]</span>
+
+ <span class="p">[[[</span> <span class="mi">5</span>  <span class="mi">6</span>  <span class="mi">7</span><span class="p">]</span>  <span class="p">[[</span> <span class="mi">6</span>  <span class="mi">7</span>  <span class="mi">8</span><span class="p">]</span>  <span class="p">[[</span> <span class="mi">7</span>  <span class="mi">8</span>  <span class="mi">9</span><span class="p">]</span>
+   <span class="p">[</span><span class="mi">10</span> <span class="mi">11</span> <span class="mi">12</span><span class="p">]</span>   <span class="p">[</span><span class="mi">11</span> <span class="mi">12</span> <span class="mi">13</span><span class="p">]</span>   <span class="p">[</span><span class="mi">12</span> <span class="mi">13</span> <span class="mi">14</span><span class="p">]</span>
+   <span class="p">[</span><span class="mi">15</span> <span class="mi">16</span> <span class="mi">17</span><span class="p">]]</span>  <span class="p">[</span><span class="mi">16</span> <span class="mi">17</span> <span class="mi">18</span><span class="p">]]</span>  <span class="p">[</span><span class="mi">17</span> <span class="mi">18</span> <span class="mi">19</span><span class="p">]]]]</span>
+</code></pre></div></div>
+
+<p>Just as we did before, let’s think about the <code class="language-plaintext highlighter-rouge">shape</code> and <code class="language-plaintext highlighter-rouge">strides</code> of the
+windowed view.
+The desired view has 4 dimensions, so its shape resembles <code class="language-plaintext highlighter-rouge">(?, ?, ?, ?)</code>.
+And we know that the last 2 dimensions are each 3, so the shape is <code class="language-plaintext highlighter-rouge">(?, ?, 3, 3)</code>.
+Finally, if we squint a little and collapse each of the 3x3 sub-subarrays, it’s
+clear that we’re looking at a 2D array whose height is 2 and whose width is 3.
+That is, it’s height (the first dimension) is 2 less than the height of the
+original view, and it’s width (the second dimension) is 2 less than the original
+width.
+So the windowed view’s <code class="language-plaintext highlighter-rouge">shape</code> is <code class="language-plaintext highlighter-rouge">(h - 2, w - 2, 3, 3)</code>.</p>
+
+<p>Whew!
+Thankfully, the <code class="language-plaintext highlighter-rouge">strides</code> are very easy, as before.
+It helps to work a few examples out on paper, but it turns out that the
+<code class="language-plaintext highlighter-rouge">strides</code> of the windowed view are just <code class="language-plaintext highlighter-rouge">a.strides * a.strides</code>, as in the 1D
+case.
+One way to convince yourself of this is that each little 3x3 subarray is just a
+“chunk” of the original array, so the distances between its elements in the data
+buffer ought to be the same as those distances in the original view.</p>
+
+<p>Putting these two pieces together:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">arange</span><span class="p">(</span><span class="mi">20</span><span class="p">).</span><span class="nf">reshape</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">a</span><span class="p">.</span><span class="n">shape</span>
+<span class="nf">as_strided</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">h</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">w</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="n">a</span><span class="p">.</span><span class="n">strides</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># =&gt; [[[[ 0  1  2]
+#       [ 5  6  7]
+#       [10 11 12]]
+#
+#      [[ 1  2  3]
+#       [ 6  7  8]
+#
+#      ...
+#
+#       [12 13 14]
+#       [17 18 19]]]]
+</span></code></pre></div></div>
+
+<p>Let’s define a function <code class="language-plaintext highlighter-rouge">view_windowed</code> that does just what we did above:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">view_windowed</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sh">"""</span><span class="s">Construct a 3x3 </span><span class="sh">"</span><span class="s">windowed</span><span class="sh">"</span><span class="s"> view of x.</span><span class="sh">"""</span>
+    <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">x</span><span class="p">.</span><span class="n">shape</span>
+    <span class="k">return</span> <span class="nf">as_strided</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">h</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">w</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="n">x</span><span class="p">.</span><span class="n">strides</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="convolutions-finally">Convolutions, Finally</h2>
+
+<p>Let’s take a 3x3 “kernel”, like:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+<span class="c1"># =&gt; [[ 0 -1  0]
+#     [-1  4 -1]
+#     [ 0 -1  0]]
+</span></code></pre></div></div>
+
+<p>And multiply it by our windowed view of the example array <code class="language-plaintext highlighter-rouge">a</code> above.
+Since <code class="language-plaintext highlighter-rouge">k.shape</code> is <code class="language-plaintext highlighter-rouge">(3, 3)</code> and <code class="language-plaintext highlighter-rouge">view_windowed(a).shape</code> is <code class="language-plaintext highlighter-rouge">(2, 3, 3, 3)</code>, the
+produce <code class="language-plaintext highlighter-rouge">view_windowed(a) * k</code> makes sense (they’re
+<a href="https://numpy.org/doc/stable/user/basics.broadcasting.html#broadcastable-arrays">“broadcastable”</a>):</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">view_windowed</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">k</span>
+
+<span class="c1"># =&gt; [[[[  0  -1   0]  [[  0  -2   0]  [[  0  -3   0]
+#       [ -5  24  -7]   [ -6  28  -8]   [ -7  32  -9]
+#       [  0 -11   0]]  [  0 -12   0]]  [  0 -13   0]]]
+#
+#     [[[  0  -6   0]  [[  0  -7   0]  [[  0  -8   0]
+#       [-10  44 -12]   [-11  48 -13]   [-12  52 -14]
+#       [  0 -16   0]]  [  0 -17   0]]  [  0 -18   0]]]]
+</span></code></pre></div></div>
+
+<p>This is almost there!
+We don’t want all those little 3x3 subarrays, we want the <em>sums</em> of their
+elements.
+This is a job for <code class="language-plaintext highlighter-rouge">np.sum</code>, where the sum occurs over the final two <em>axes</em>, that
+is, the elements of the 3x3 arrays:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">np</span><span class="p">.</span><span class="nf">sum</span><span class="p">(</span><span class="nf">view_windowed</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">k</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="c1"># =&gt; [[0 0 0]
+#     [0 0 0]]
+</span></code></pre></div></div>
+
+<p>Alright, not the most interesting choice of kernel, but that’s at least what we
+expected.</p>
+
+<p>Finally, let’s put it all together to define <code class="language-plaintext highlighter-rouge">conv3x3</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">conv3x3</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="sh">"""</span><span class="s">Convolve the 2D array x with the 3x3 kernel k.</span><span class="sh">"""</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="nf">view_windowed</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">sum</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">k</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+</code></pre></div></div>
+
+<h2 id="summary">Summary</h2>
+
+<p>We arrived at a really straightforward definition of convolution that frees us
+from having to juggle indexes.
+Did we lose anything in the process?
+For example, we might worry that the nested <code class="language-plaintext highlighter-rouge">for</code> loop approach is more
+performant.</p>
+
+<p>I’m not entirely sure, actually.
+I <em>suspect</em> we’re creating two intermediate arrays: one for the produce <code class="language-plaintext highlighter-rouge">w * k</code>
+and another for the final <code class="language-plaintext highlighter-rouge">sum</code>.
+Instead of doing this in two steps, we could use <code class="language-plaintext highlighter-rouge">np.tensordot</code> to (possibly) do
+it all in one shot:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">conv3x3</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="nf">view_windowed</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">tensordot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>In theory, this would result in only a single new buffer being allocated, but
+that depends on how <code class="language-plaintext highlighter-rouge">tensordot</code> is implemented.</p>
+
+</main>
+
+      <footer></footer>
+    </div>
+  </body>
+</html>
