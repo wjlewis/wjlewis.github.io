@@ -55,8 +55,9 @@ fit together.
 That, together with some bugs on the part of my autodiff implementation, made
 for a frustrating morning.</p>
 
-<p>In this note we’ll using gradient descent to train a tiny model to emulate a
-linear function.
+<p>In this note we’ll use gradient descent to train a tiny model to emulate a
+linear function (an example of <a href="https://en.wikipedia.org/wiki/Regression_analysis"><em>regression</em></a>
+problem).
 We’ll construct the entire system “from scratch”, so we’ll also see how
 automatic differentation works.</p>
 
@@ -65,7 +66,7 @@ automatic differentation works.</p>
 <p>The GIF above illustrates well what we’re trying to do: the blue line is the
 linear function we’d like to emulate, and the orange function shows the current
 behavior of our model as it “learns” the blue line.
-We’ll view this as an optimization problem, in which we want to optimize the
+We’ll view this as an optimization problem in which we want to optimize the
 “nearness” of the orange line (our model’s behavior) to the blue line.
 One simple way to measure this nearness is with <a href="https://en.wikipedia.org/wiki/Mean_squared_error">mean squared error</a>:
 we pick some x values—say -2 and 3—calculate the value of our
@@ -89,7 +90,7 @@ So we’re going to need a way to differentiate expressions.</p>
 
 <p>There are many ways to implement automatic differentiation (“autodiff”), but
 we’ll stick with a really simple approach here.
-In particular, we’ll create a way to construct symbolic expressions involving,
+In particular, we’ll create a way to construct symbolic expressions involving
 numbers, variables, and arithmetic operations.
 Differentiation is then just a simple recursive process, not too different from
 evaluation.</p>
@@ -204,8 +205,8 @@ to compute the derivatives of its components, and then “glue” them together 
 some way.</li>
 </ul>
 
-<p>Now differentiation as we’ll implement it here is a function of two variables:
-an <em>expression</em> and a <em>name</em>.
+<p>Differentiation as we’ll implement it here is a function of two variables: an
+<em>expression</em> and a <em>name</em>.
 The result is the derivative of the expression <em>with respect to</em> the variable
 with that name.</p>
 
@@ -223,9 +224,9 @@ with that name.</p>
 
 <p>That is, the derivative of a number with respect to <em>any</em> variable is 0, and the
 derivative of a variable with respect to another variable is 1 if they’re the
-same or 0 if they’re not.</p>
+same, and 0 if they’re not.</p>
 
-<p>Now in python:</p>
+<p>In Python:</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">d</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
     <span class="sh">"""</span><span class="s">Compute the derivative of the expression e w.r.t. the symbol whose name
@@ -241,8 +242,8 @@ same or 0 if they’re not.</p>
         <span class="k">return</span> <span class="mi">0</span>
 </code></pre></div></div>
 
-<p>To compute the derivatives of binary expression, we need to implement the <em>chain
-rule</em>.
+<p>To compute the derivatives of binary expressions, we need to implement the
+<em>chain rule</em>.
 This says that if <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo>=</mo><mi>l</mi><mo>⊕</mo><mi>r</mi></mrow><annotation encoding="application/x-tex">e = l \oplus r</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">e</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7778em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⊕</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span></span></span></span>, then the derivative of <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi></mrow><annotation encoding="application/x-tex">e</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">e</span></span></span></span> w.r.t a
 variable <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi></mrow><annotation encoding="application/x-tex">x</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">x</span></span></span></span> is:</p>
 
@@ -312,7 +313,7 @@ correct.</p>
 
 <p>Finally, we’re going to need a way to <em>evaluate</em> expressions within some
 “environment”.
-Using <code class="language-plaintext highlighter-rouge">dict</code>s to represent environment, this is trivial:</p>
+Using <code class="language-plaintext highlighter-rouge">dict</code>s to represent environments, this is trivial:</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">val</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
     <span class="sh">"""</span><span class="s">Calculate the value of the expression e in the environment env.</span><span class="sh">"""</span>
@@ -398,7 +399,14 @@ For this, we’ll just sample two points using our <code class="language-plainte
 </code></pre></div></div>
 
 <p>Recall that we’re trying to optimize the <em>mean squared error</em> of our model
-w.r.t. the target line.</p>
+w.r.t. the target line.
+This involves:</p>
+
+<ol>
+  <li>Applying our <code class="language-plaintext highlighter-rouge">model</code> to each <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi></mrow><annotation encoding="application/x-tex">x</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">x</span></span></span></span> value in the training data.</li>
+  <li>Summing the squared differences between our model’s prediction and the
+desired <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi></mrow><annotation encoding="application/x-tex">y</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span></span></span>-value (and then dividing by the size of the dataset).</li>
+</ol>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">predictions</span> <span class="o">=</span> <span class="p">[</span><span class="nf">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">train_xs</span><span class="p">]</span>
 <span class="n">loss</span> <span class="o">=</span> <span class="nf">sum</span><span class="p">((</span><span class="n">pi</span> <span class="o">-</span> <span class="n">yi</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">pi</span><span class="p">,</span> <span class="n">yi</span> <span class="ow">in</span> <span class="nf">zip</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">train_ys</span><span class="p">))</span> <span class="o">/</span> <span class="nf">len</span><span class="p">(</span><span class="n">train_xs</span><span class="p">)</span>
@@ -411,8 +419,8 @@ Here’s what we get if we <code class="language-plaintext highlighter-rouge">pr
 <span class="c1"># =&gt; (/ (+ (+ 0 (** (- (+ (* m -2) b) -3) 2)) (** (- (+ (* m 3) b) 7) 2)) 2)
 </span></code></pre></div></div>
 
-<p>An, as such, we can also <em>differentiate</em> it with respect to our parameters <code class="language-plaintext highlighter-rouge">m</code>
-and <code class="language-plaintext highlighter-rouge">b</code>:</p>
+<p>As such, we can also <em>differentiate</em> it with respect to our parameters <code class="language-plaintext highlighter-rouge">m</code> and
+<code class="language-plaintext highlighter-rouge">b</code>:</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">dloss_dm</span> <span class="o">=</span> <span class="nf">d</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="sh">'</span><span class="s">m</span><span class="sh">'</span><span class="p">)</span>
 <span class="c1"># =&gt; (+ (* 0.5 (+ (* 1 (+ 0 (* 1 (+ (* (* 2 (** (- (+ (* m -2) b) -3) 1)) (+ (* 1 (+ (* 1 (+ -2 (* m 0))) 0)) 0)) 0)))) (* 1 (+ (* (* 2 (** (- (+ (* m 3) b) 7) 1)) (+ (* 1 (+ (* 1 (+ 3 (* m 0))) 0)) 0)) 0)))) (* (/ (- 0 (+ (+ 0 (** (- (+ (* m -2) b) -3) 2)) (** (- (+ (* m 3) b) 7) 2))) 4) 0))
@@ -455,11 +463,15 @@ This fraction is usually called the <em>learning rate</em>.</p>
 
 <p>Lo and behold, it works!</p>
 
+<p><img src="/assets/images/line-learning.gif" alt="Learning to fit our linear model" /></p>
+
+<p><img src="/assets/images/line-learning-loss.png" alt="The loss over time while training our linear model" /></p>
+
 <h2 id="gradient-descent-for-real">Gradient Descent, for Real</h2>
 
 <p>What’s different in a <em>real</em> application that uses a standard package like
 <code class="language-plaintext highlighter-rouge">pytorch</code>?
-The most obvious differences are in how the autodiff functionality works.
+The most striking differences are in how the autodiff functionality works.
 For most interesting applications, the actual derivative expressions would be
 unthinkably large.
 The good news is that it’s not necessary to construct these expressions in the
@@ -481,7 +493,7 @@ the expression towards the parameters.</p>
 </span>    <span class="c1"># Update parameter values.
 </span></code></pre></div></div>
 
-<p>A second difference is that in most real applications, we don’t consider the
+<p>A second difference is that in most real applications we don’t consider the
 entire dataset when calculating the loss, but instead work with batches of the
 original dataset.
 This has an important consequence: it means that the loss function being
@@ -518,7 +530,7 @@ Using 3 datapoints:</p>
 
 <p><img src="/assets/images/parabola-learning2.gif" alt="Regression with a parabola using 10 datapoints" /></p>
 
-<p>The loss would quickly drop only to bottom out above 0.
+<p>The loss would quickly drop only to bottom out and remain above 0.
 And if I increased the learning rate I’d run into overflow issues.</p>
 
 <p>I finally logged some of the intermediate parameter values and realized that
