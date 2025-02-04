@@ -1,4 +1,48 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="https://wjlewis.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://wjlewis.github.io/" rel="alternate" type="text/html" /><updated>2025-02-03T06:59:51-05:00</updated><id>https://wjlewis.github.io/feed.xml</id><title type="html">Blog</title><subtitle>William Lewis&apos; personal blog.</subtitle><entry><title type="html">A Little Gradient Descent</title><link href="https://wjlewis.github.io/2025/02/02/simple-gradient-descent.html" rel="alternate" type="text/html" title="A Little Gradient Descent" /><published>2025-02-02T00:00:00-05:00</published><updated>2025-02-02T00:00:00-05:00</updated><id>https://wjlewis.github.io/2025/02/02/simple-gradient-descent</id><content type="html" xml:base="https://wjlewis.github.io/2025/02/02/simple-gradient-descent.html"><![CDATA[<p><img src="/assets/images/line-learning.gif" alt="A simple model learns a simple line" /></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="https://wjlewis.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://wjlewis.github.io/" rel="alternate" type="text/html" /><updated>2025-02-04T05:24:37-05:00</updated><id>https://wjlewis.github.io/feed.xml</id><title type="html">Blog</title><subtitle>William Lewis&apos; personal blog.</subtitle><entry><title type="html">The Joy of Scheming</title><link href="https://wjlewis.github.io/2025/02/03/little-schemer.html" rel="alternate" type="text/html" title="The Joy of Scheming" /><published>2025-02-03T00:00:00-05:00</published><updated>2025-02-03T00:00:00-05:00</updated><id>https://wjlewis.github.io/2025/02/03/little-schemer</id><content type="html" xml:base="https://wjlewis.github.io/2025/02/03/little-schemer.html"><![CDATA[<p>A few mornings ago I hacked together a <a href="https://github.com/wjlewis/pocket-scheme">basic Scheme system</a>
+in JavaScript.
+I needed an interpreter for another project I was working on and Scheme fit the
+bill: simple to parse, simple to evaluate, yet incredibly expressive.</p>
+
+<p>There’s a magical quality to writing compilers and interpreters.
+Early in the process, programs in the target language just act and behave like
+strings.
+But there’s this turning point where these programs start <em>computing</em> things.
+I’ve written lots of typecheckers and fragments of language-related programs
+recently, but it had been some time since I’d built a system that worked
+end-to-end like this one.
+As a result, I’d forgotten the feeling of enchantment and pure joy of seeing
+programs come alive in this way.</p>
+
+<p>My first taste of Scheme had been in the fall of 2016.
+I remember searching the internet for “best books to learn about recursion” or
+something to that effect.
+Two books were consistently recommended: <em>The Little Schemer</em> and <em>SICP</em>.
+I bought a heavily-used copy of <em>The Little LISPer</em> (the first edition of <em>TLS</em>)
+and was instantly hooked.
+For the next several weeks, I thought about Scheme and recursion incessantly.
+My notes for other classes were covered in s-expressions, and anyone who saw
+them must’ve thought I’d lost my grip.</p>
+
+<p>A few chapters into <em>The Little LISPer</em> I started working through <a href="https://mitp-content-server.mit.edu/books/content/sectbyfn/books_pres_0/6515/sicp.zip/full-text/book/book.html"><em>SICP</em></a>.
+I was working at the front desk at our school’s gym, a job which consisted
+mostly of standing in one place in front of a computer.
+So in the evenings, once the flow of patrons slowed down to a trickle, I’d open
+a browser tab and pick up wherever I’d left off.
+I’d think about symbolic differentiation or continuations while switching the
+towels from the washer to the dryer, or wiping down equipment.</p>
+
+<p>There’s a quality to <em>The Little Schemer</em>, <em>SICP</em>, and Scheme itself that’s hard
+to pin down.
+Reading either of these books feels a bit like walking into a humble little
+country restaurant, a couple of chefs in the back chopping squash and onions
+they just pulled from the garden.
+<em>How good could it possibly be?</em> you wonder, given the simple ingredients and
+unimposing look of the place.
+But the first bite dispels all doubt: under skillful hands, a few humble
+vegetables have been transformed into the most delicious thing you’ve tasted in
+years.
+What’s more, after you’ve eaten, they invite you to the kitchen, hand you an
+apron, and show you all they know.</p>]]></content><author><name></name></author><category term="Reflection" /><category term="Scheme" /><summary type="html"><![CDATA[A few mornings ago I hacked together a basic Scheme system in JavaScript. I needed an interpreter for another project I was working on and Scheme fit the bill: simple to parse, simple to evaluate, yet incredibly expressive.]]></summary></entry><entry><title type="html">A Little Gradient Descent</title><link href="https://wjlewis.github.io/2025/02/02/simple-gradient-descent.html" rel="alternate" type="text/html" title="A Little Gradient Descent" /><published>2025-02-02T00:00:00-05:00</published><updated>2025-02-02T00:00:00-05:00</updated><id>https://wjlewis.github.io/2025/02/02/simple-gradient-descent</id><content type="html" xml:base="https://wjlewis.github.io/2025/02/02/simple-gradient-descent.html"><![CDATA[<p><img src="/assets/images/line-learning.gif" alt="A simple model learns a simple line" /></p>
 
 <p>I’ve been increasingly interested in AI, so as an exercise I decided to play
 around with some simple optimization problems using gradient descent.
