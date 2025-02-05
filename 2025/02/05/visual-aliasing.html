@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Visual Aliasing</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="/assets/css/syntax.css" />
+
+    
+  </head>
+
+  <body>
+    <div id="content">
+      <header>
+        <nav>
+          <a href="/">
+            <img
+              id="sonobe"
+              src="/assets/images/sonobe.svg"
+              alt="A sonobe module"
+            />
+          </a>
+
+          <a href="/about">About</a>
+        </nav>
+      </header>
+
+      <main><h1>Visual Aliasing</h1>
+
+<p>I’ve been learning a bit about digital signals from Brian McFee’s very
+approachable (and freely-available)
+<a href="https://brianmcfee.net/dstbook-site/content/intro.html"><em>Digital Signals Theory</em></a>.
+While studying <em>aliasing</em> I was inspired to throw together a little interactive
+visual demo to help illustrate the phenomenon.
+I’ve included a few videos here, but you can play along at home <a href="https://wjlewis.github.io/visual-aliasing-demo/">here</a>.</p>
+
+<p>Discrete signals are often the result of <em>sampling</em> a continuous signal.
+Sampling is just a process of taking “snapshots” of the continuous signal at a
+regular interval (the <em>sampling period</em>).
+Taking more frequent snapshots leads to a smoother looking discretization, and
+vice-versa.</p>
+
+<p>In the video below, the right wheel’s angle is sampled from the left wheel’s at
+the chosen sampling frequency.
+As I reduce the sampling frequency (and thus increase the time between
+snapshots), the right wheel’s rotation becomes choppy:</p>
+
+<video src="/assets/videos/wheel-sampling.webm" type="video/webm" controls=""></video>
+
+<p>So we want the sampling frequency to be high enough to avoid the “choppiness”
+we’re seeing here.
+But choppiness isn’t the only problem facing us.
+Sampling is an inherently <em>lossy</em> process: we’ve thrown away any information
+about what our signal is doing in-between snapshots.</p>
+
+<p>As an extreme example, suppose we sample the left wheel’s angle once per second.
+Here’s what happens as we sweep the left wheel’s rotation frequency from a
+quarter turn per second to one turn per second:</p>
+
+<video src="/assets/videos/wheel-frozen.webm" type="video/webm" controls=""></video>
+
+<p>If the left wheel makes one revolution each second, and we sample it once per
+second, then its angle is the same each time we sample it: it looks like it
+isn’t rotating at all!</p>
+
+<p>This is an extreme example of <em>aliasing</em>.
+There are an infinite number of continuous signals that our discrete signal
+<em>could</em> have been sampled from: maybe the wheel was actually spinning twice per
+second, or three times per second, etc; or maybe it was actually just rocking
+back and forth; or doing something even more complex.</p>
+
+<p>Here’s another example.
+In this case we’re sampling the left wheel’s angle twice per second.
+If the left wheel makes a single revolution each second, our discretization
+makes the wheel look like it’s just flipping back and forth.
+But we also “capture” the <em>same exact signal</em> if the left wheel makes 3
+revolutions per second:</p>
+
+<video src="/assets/videos/wheel-sample3-1.webm" type="video/webm" controls=""></video>
+
+<p>Of course, things can get even stranger.
+Pairing the right sampling frequency with any continuous frequency can create
+the illusion that the wheel is spinng <em>backwards</em>:</p>
+
+<video src="/assets/videos/wheel-backwards.webm" type="video/webm" controls=""></video>
+
+<h2 id="what-can-be-done">What Can be Done?</h2>
+
+<p>Losing information is inherent in the sampling process: there will always be
+infinitely many ways to continuously connect two successive samples.
+But <em>aliasing</em> doesn’t need to be.
+It turns out, if your continuous signal is composed only of frequencies limited
+to a finite interval (the signal’s <em>band</em>), then there exists a sampling
+frequency above which aliasing doesn’t occur.
+Basically, any continuous frequencies that could interpolate successive samples
+are outside the original signal’s band limits.
+This is the celebrated <a href="https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem"><em>Nyquist-Shannon Sampling Theorem</em></a>.</p>
+
+</main>
+
+      <footer></footer>
+    </div>
+  </body>
+</html>
