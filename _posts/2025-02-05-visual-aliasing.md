@@ -9,7 +9,8 @@ approachable (and freely-available)
 [_Digital Signals Theory_](https://brianmcfee.net/dstbook-site/content/intro.html).
 While studying _aliasing_ I was inspired to throw together a little interactive
 visual demo to help illustrate the phenomenon.
-I've included a few videos here, but you can play along at home [here](https://wjlewis.github.io/visual-aliasing-demo/).
+I've included a few videos in this post, but you can play along at home
+[here](https://wjlewis.github.io/visual-aliasing-demo/).
 
 Discrete signals are often the result of _sampling_ a continuous signal.
 Sampling is just a process of taking "snapshots" of the continuous signal at a

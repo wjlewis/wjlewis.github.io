@@ -17,7 +17,7 @@ That, together with some bugs on the part of my autodiff implementation, made
 for a frustrating morning.
 
 In this note we'll use gradient descent to train a tiny model to emulate a
-linear function (an example of [_regression_](https://en.wikipedia.org/wiki/Regression_analysis)
+linear function (an example of a [_regression_](https://en.wikipedia.org/wiki/Regression_analysis)
 problem).
 We'll construct the entire system "from scratch", so we'll also see how
 automatic differentation works.
