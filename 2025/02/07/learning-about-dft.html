@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Learning about the DFT</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="/assets/css/syntax.css" />
+
+    
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css"
+      integrity="sha384-zh0CIslj+VczCZtlzBcjt5ppRcsAmDnRem7ESsYwWwg3m/OaJ2l4x7YBZl9Kxxib"
+      crossorigin="anonymous"
+    />
+    
+  </head>
+
+  <body>
+    <div id="content">
+      <header>
+        <nav>
+          <a href="/">
+            <img
+              id="sonobe"
+              src="/assets/images/sonobe.svg"
+              alt="A sonobe module"
+            />
+          </a>
+
+          <a href="/about">About</a>
+        </nav>
+      </header>
+
+      <main><h1>Learning about the DFT</h1>
+
+<p>I’ve been learning a bit about discrete signals from Brian McFee’s
+<a href="https://brianmcfee.net/dstbook-site/content/intro.html"><em>Digital Signals Theory</em></a>.
+I’m currently trying to understand the
+<a href="https://en.wikipedia.org/wiki/Discrete_Fourier_transform"><em>Discrete Fourier Transform</em></a>.
+The Fourier Transform is one of those concepts that I <em>feel</em> like I understand
+until I probe just slightly past the surface.
+For example: why is the result a complex-valued function?
+I don’t know (yet)!</p>
+
+<p>I’m currently learning about comparing a discrete signal to various
+discretizations of sinusoids.
+A simple way to compare two discrete signals is to sum the products of their
+respective samples.
+This is just the familiar dot product, where we treat each signal as a vector in
+<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span>-dimensional space, where <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> is the number of samples.</p>
+
+<p>By sweeping through a range of sinusoids at varying frequencies, we can build up
+a representation of our original signal in terms of these sinusoids.
+Well, kind of.</p>
+
+<p>We need to compare our original signal to both <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mi>i</mi><mi>n</mi></mrow><annotation encoding="application/x-tex">sin</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6595em;"></span><span class="mord mathnormal">s</span><span class="mord mathnormal">in</span></span></span></span> and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mi>o</mi><mi>s</mi></mrow><annotation encoding="application/x-tex">cos</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">cos</span></span></span></span> functions,
+because one family of these alone isn’t a basis in the space we’re interested
+in.
+Once we have these values we form some kind of spectrum that also incorporates
+complex numbers at some point.
+I’m not sure yet.</p>
+
+<p>One thing at a time.
+In order to get a better intuitive grip on what “similarity” means in this
+context, I hacked together a little <a href="https://observablehq.com">Observable</a>
+notebook:</p>
+
+<video src="/assets/videos/learning-about-dft.webm" type="video/webm" controls=""></video>
+
+<p>The top element is an interactive widget that lets me “paint” a discrete signal
+using the cursor.
+We can then compare the input signal against a variety of sinusoids whose
+frequency and phase are controlled by some sliders.
+By aggregating these similarity scores (at a particular phase), we can plot a
+kind of “similarity spectrum”.
+And finally, we can use that spectrum to (kind of) reproduce the original
+signal.</p>
+
+<p>Clearly I’m still missing quite a bit: the reconstruction as I’m implementing it
+here is inherently incomplete, since it only considers samples at a single
+phase.
+We need another dimension here (the phase), which I’m assuming is where the
+complex numbers come into play.</p>
+
+</main>
+
+      <footer></footer>
+    </div>
+  </body>
+</html>
