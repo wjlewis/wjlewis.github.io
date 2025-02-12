@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sampling SVG Paths</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="/assets/css/syntax.css" />
+
+    
+  </head>
+
+  <body>
+    <div id="content">
+      <header>
+        <nav>
+          <a href="/">
+            <img
+              id="sonobe"
+              src="/assets/images/sonobe.svg"
+              alt="A sonobe module"
+            />
+          </a>
+
+          <a href="/about">About</a>
+        </nav>
+      </header>
+
+      <main><h1>Sampling SVG Paths</h1>
+
+<p>I’m going to need to sample SVG paths for a little project involving the
+Discrete Fourier Transform, so I spent a morning hacking something together in
+an Observable notebook.
+The result is a couple of functions capable of turning an SVG path, like:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>m 0.67459296,84.73997 q 0,-4.441731 2.78899444,-7.850486 2.8922979, ...
+</code></pre></div></div>
+
+<p>into a sequence of points sampled from that path:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span>
+  <span class="p">[</span><span class="mf">0.67459296</span><span class="p">,</span> <span class="mf">84.73997</span><span class="p">],</span>
+  <span class="p">[</span><span class="mf">0.8489051125</span><span class="p">,</span> <span class="mf">82.5836655</span><span class="p">],</span>
+  <span class="p">[</span><span class="mf">1.37184157</span><span class="p">,</span> <span class="mf">80.556483</span><span class="p">],</span>
+  <span class="p">[</span><span class="mf">2.2434023325</span><span class="p">,</span> <span class="mf">78.6584225</span><span class="p">],</span>
+  <span class="p">[</span><span class="mf">3.4635874</span><span class="p">,</span> <span class="mf">76.889484</span><span class="p">],</span>
+  <span class="p">[</span><span class="mf">3.4635874</span><span class="p">,</span> <span class="mf">76.889484</span><span class="p">],</span>
+  <span class="p">[</span><span class="mf">5.0065759000000005</span><span class="p">,</span> <span class="mf">75.39814493749999</span><span class="p">],</span>
+  <span class="p">[</span><span class="mf">6.7432435</span><span class="p">,</span> <span class="mf">74.33290274999999</span><span class="p">],</span>
+  <span class="p">[</span><span class="mf">8.6735902</span><span class="p">,</span> <span class="mf">73.69375743749998</span><span class="p">],</span>
+  <span class="p">[</span><span class="mf">10.797616</span><span class="p">,</span> <span class="mf">73.48070899999999</span><span class="p">],</span>
+  <span class="c1">// ...</span>
+<span class="p">];</span>
+</code></pre></div></div>
+
+<p>To help debug the output, these samples can then be rendered as dots on an HTML
+<code class="language-plaintext highlighter-rouge">canvas</code>:</p>
+
+<p><img src="/assets/images/svg-x-dots.png" alt="Samples from an SVG path rendered on a canvas" /></p>
+
+<p>The process is fairly straightforward (and perhaps <em>too</em> straightforward; only
+time will tell):</p>
+
+<ol>
+  <li>
+    <p>The path string is parsed into a sequence of commands.
+A typical command looks like:</p>
+
+    <div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span> <span class="nl">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">q</span><span class="dl">'</span><span class="p">,</span> <span class="nx">ctrl</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">],</span> <span class="nx">to</span><span class="p">:</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">]</span> <span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Relative commands are then “desugared” into their absolute equivalents.
+That is, <code class="language-plaintext highlighter-rouge">q</code> commands are transformed into the equivalent <code class="language-plaintext highlighter-rouge">Q</code> command, <code class="language-plaintext highlighter-rouge">c</code> to
+<code class="language-plaintext highlighter-rouge">C</code>, <code class="language-plaintext highlighter-rouge">l</code> to <code class="language-plaintext highlighter-rouge">L</code>, etc.
+We also “expand” <code class="language-plaintext highlighter-rouge">H</code>, <code class="language-plaintext highlighter-rouge">h</code>, <code class="language-plaintext highlighter-rouge">V</code>, and <code class="language-plaintext highlighter-rouge">v</code> with the appropriate <code class="language-plaintext highlighter-rouge">L</code> command at
+this time.</p>
+  </li>
+  <li>
+    <p>At this point we have a sequence of absolute commands.
+We iterate over these, sampling <code class="language-plaintext highlighter-rouge">n</code> points from each one in turn (with the
+exception of <code class="language-plaintext highlighter-rouge">M</code> commands, which move the “pencil” but don’t contribute any
+points).
+This is just a matter of implementing explicit formulas for Bézier curves,
+something I’d done a while ago but hadn’t looked at since.
+Bézier curves really are beautiful things, both visually and mathematically.</p>
+  </li>
+</ol>
+
+<p>I’m hoping to use this system to compute the DFT of cool-looking paths, and then
+implement a “circle machine” that draws them.
+One aspect of the way I’ve implemented things here that might trip me up is that
+each <em>segment</em> of the path is sampled independently.
+So the path:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>M 0 0 H 10 H 100
+</code></pre></div></div>
+
+<p>looks like a horizontal line from <code class="language-plaintext highlighter-rouge">0</code> to <code class="language-plaintext highlighter-rouge">100</code>, but the samples aren’t spaced
+uniformly:</p>
+
+<p><img src="/assets/images/nonuniform-line-samples.png" alt="Nonuniform samples from a straight line" /></p>
+
+<p>Whether or not this is a problem remains to be seen.
+At the moment, I’m not sure <em>how</em> I’d produce uniform samples from this path in
+the event that this is an issue.
+But that’s a problem for another day.</p>
+
+</main>
+
+      <footer></footer>
+    </div>
+  </body>
+</html>

@@ -76,3 +76,23 @@ blockquote {
   background-color: #f1eac2;
   color: #333;
 }
+
+table {
+  border: 1px solid #333;
+  border-collapse: collapse;
+}
+
+tr {
+  border-bottom: 1px solid #333;
+}
+
+th,
+td {
+  border-right: 1px solid #333;
+  padding: 4px;
+  text-align: start;
+}
+
+td.numeric {
+  text-align: center;
+}
