@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>First Success with the DFT</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="/assets/css/syntax.css" />
+
+    
+  </head>
+
+  <body>
+    <div id="content">
+      <header>
+        <nav>
+          <a href="/">
+            <img
+              id="sonobe"
+              src="/assets/images/sonobe.svg"
+              alt="A sonobe module"
+            />
+          </a>
+
+          <a href="/about">About</a>
+        </nav>
+      </header>
+
+      <main><h1>First Success with the DFT</h1>
+
+<p>I finally put all of the pieces together this morning:</p>
+
+<video src="/assets/videos/dfts/letter-t-dft.webm" controls="" width="100%"></video>
+
+<p>I feel like I have a solid grasp of the <a href="https://en.wikipedia.org/wiki/Discrete_Fourier_transform">Discrete Fourier Transform</a>,
+and I can now answer questions that stumped me a few days ago, like: <em>if my
+signal has no imaginary component, why are the coefficients of its Fourier
+series complex numbers?</em></p>
+
+<p>This is kind of like asking: <em>if my number is an integer, why might half of it
+be a (non-integral) rational number?</em>
+While our signal might have no imaginary component, this is kind of a special
+case for periodic phenomena, in the same way that even numbers are special
+integers.</p>
+
+<p>In order to be able to express both sine and cosine using a “circle machine”
+(and <em>why</em> we care about these circle machines will need to wait for another
+post) we need to be able to set both the lengths of the machine’s arms but also
+their <em>starting angles</em>.
+It’s almost impossible to detect in this video, but the “sine machine” starts
+with one arm straight up and the other straight down, where the “cosine machine”
+begins with them stretched end-to-end horizontally:</p>
+
+<video src="/assets/videos/dfts/sin-cos-dft.webm" controls="" width="100%"></video>
+
+<p>So each arm needs two parameters (length and initial angle) just to be able to
+express real-valued signals.
+Bundling up these two parameters into a complex number isn’t strictly necessary,
+but it’s a natural and insightful choice.</p>
+
+<p>Here are a few more.
+A square wave:</p>
+
+<video src="/assets/videos/dfts/square-dft.webm" controls="" width="100%"></video>
+
+<p>And the unit circle:</p>
+
+<video src="/assets/videos/dfts/circle-dft.webm" controls="" width="100%"></video>
+
+<h2 id="more-questions">More Questions</h2>
+
+<p>Still, more questions remain.</p>
+
+<ul>
+  <li>It’s not obvious to me why the (sampled) basis functions are orthogonal.
+This appears to have something to do with the fact that different frequencies
+result in samples “bouncing around” the roots of unity in different orders.</li>
+  <li>Related to this, there appear to be exactly n ways to bounce around the
+n<sup>th</sup> roots of unity.
+I <em>think</em> what I’m observing is that there are n distinct cyclic groups
+(including <em>subgroups</em>) that “involve” the n<sup>th</sup> roots of unity.</li>
+</ul>
+
+<p>Clearly I still have more to learn about the unit circle!</p>
+
+</main>
+
+      <footer></footer>
+    </div>
+  </body>
+</html>
