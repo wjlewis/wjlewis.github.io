@@ -96,3 +96,7 @@ td {
 td.numeric {
   text-align: center;
 }
+
+.katex-html {
+  white-space: nowrap;
+}
