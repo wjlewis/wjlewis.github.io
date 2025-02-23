@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Almost a Decent Coordinate Plane</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="/assets/css/syntax.css" />
+
+    
+  </head>
+
+  <body>
+    <div id="content">
+      <header>
+        <nav>
+          <a href="/">
+            <img
+              id="sonobe"
+              src="/assets/images/sonobe.svg"
+              alt="A sonobe module"
+            />
+          </a>
+
+          <a href="/about">About</a>
+        </nav>
+      </header>
+
+      <main><h1>Almost a Decent Coordinate Plane</h1>
+
+<p>I’ve spent the last few mornings reverse-engineering the coordinate plane in the
+<a href="https://www.desmos.com/calculator">Desmos Graphing Calculator</a>.
+I think I’m almost there:</p>
+
+<video src="/assets/videos/coord-plane1.webm" controls="" width="100%"></video>
+
+<p>All I have left to do is render the labels correctly.
+(You can see an example of this <em>not</em> happening towards the end of the video.)</p>
+
+<p>The code that implements this is compact (just a few hundred lines) and, I
+believe, fairly efficient (it only allocates memory to create the labels).</p>
+
+<p>I’m planning on using this in a little playground for exploring 2D real linear
+transformations.
+I’ll render two coordinate planes: one for the domain and the other for the
+image; you’ll be able to draw on the domain and see your drawing transformed on
+the image plane; the transformation will be a configurable matrix, possibly with
+a few bells and whistles.</p>
+
+<p>Once I figure out the labels I’d also like to write up a tutorial on how this
+works, since it might be useful to others.</p>
+
+</main>
+
+      <footer></footer>
+    </div>
+  </body>
+</html>
